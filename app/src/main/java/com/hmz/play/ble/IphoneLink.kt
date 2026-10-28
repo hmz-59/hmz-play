@@ -455,7 +455,8 @@ object IphoneLink {
                 .setInterval(android.bluetooth.le.AdvertisingSetParameters.INTERVAL_LOW)
                 .setTxPowerLevel(android.bluetooth.le.AdvertisingSetParameters.TX_POWER_MEDIUM)
             if (Build.VERSION.SDK_INT >= 34) {
-                runCatching { pb.setOwnAddressType(android.bluetooth.le.AdvertisingSetParameters.ADDRESS_TYPE_RANDOM) }
+                // setOwnAddressType(ADDRESS_TYPE_RANDOM = 1), called by reflection (newer SDK API)
+                runCatching { pb.javaClass.getMethod("setOwnAddressType", Int::class.javaPrimitiveType).invoke(pb, 1) }
             }
             val ok = runCatching { adv.startAdvertisingSet(pb.build(), data, scan, null, null, setCallback) }.isSuccess
             if (ok) return
