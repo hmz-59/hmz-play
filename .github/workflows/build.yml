@@ -30,13 +30,16 @@ jobs:
           if [ -n "$KEYSTORE_B64" ]; then
             echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/release.jks"
             echo "KEYSTORE_FILE=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
+          elif [ -f signing/release.jks ]; then
+            echo "KEYSTORE_FILE=$GITHUB_WORKSPACE/signing/release.jks" >> "$GITHUB_ENV"
           fi
 
       - name: Build release APK
         env:
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          # Private repo: the app's own signing key lives in signing/ so updates install over the previous version.
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD || 'rfeJ95iVjpZOkkxabfWaPe8S' }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS || 'hmz' }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD || 'rfeJ95iVjpZOkkxabfWaPe8S' }}
         run: gradle assembleRelease --no-daemon --stacktrace
 
       - run: cp app/build/outputs/apk/release/app-release.apk HMZ-Play.apk
