@@ -49,6 +49,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -193,7 +194,15 @@ fun Artwork(track: Track, size: Dp, corner: Dp) {
         ),
         contentAlignment = Alignment.Center,
     ) {
-        Icon(Icons.Filled.MusicNote, null, tint = Color.White.copy(alpha = 0.9f), modifier = Modifier.size(size * 0.42f))
+        val art = track.art
+        if (art != null) {
+            val img = remember(art) { art.asImageBitmap() }
+            androidx.compose.foundation.Image(
+                img, null, contentScale = androidx.compose.ui.layout.ContentScale.Crop, modifier = Modifier.matchParentSize(),
+            )
+        } else {
+            Icon(Icons.Filled.MusicNote, null, tint = Color.White.copy(alpha = 0.9f), modifier = Modifier.size(size * 0.42f))
+        }
     }
 }
 

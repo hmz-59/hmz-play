@@ -37,6 +37,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import java.io.ByteArrayOutputStream
 import java.util.UUID
 
@@ -62,6 +68,7 @@ data class Track(
     val elapsed: Float = 0f,
     val elapsedAt: Long = 0L,
     val playerName: String = "",
+    val art: android.graphics.Bitmap? = null,
 ) {
     val isEmpty get() = title.isBlank() && artist.isBlank()
 
@@ -132,7 +139,15 @@ object IphoneLink {
     val notifications: StateFlow<List<PhoneNotif>> = _notifications.asStateFlow()
 
     private val _track = MutableStateFlow(Track())
-    val track: StateFlow<Track> = _track.asStateFlow()
+
+    /** iPhone music: Apple Media Service when linked, otherwise the car's own media session (Bluetooth music). */
+    val track: StateFlow<Track> = combine(_track, com.hmz.play.data.MediaBridge.info) { ams, m ->
+        if (!ams.isEmpty || m.isEmpty) ams else Track(
+            title = m.title, artist = m.artist, album = m.album, duration = m.durationSec,
+            playing = m.playing, rate = m.speed, elapsed = m.positionSec, elapsedAt = m.positionAt,
+            playerName = m.source, art = m.art,
+        )
+    }.stateIn(CoroutineScope(SupervisorJob() + Dispatchers.Default), SharingStarted.Eagerly, Track())
 
     private val _call = MutableStateFlow<IncomingCall?>(null)
     val call: StateFlow<IncomingCall?> = _call.asStateFlow()
@@ -181,7 +196,10 @@ object IphoneLink {
 
     fun command(cmd: Int) = h.post {
         val c = gatt?.getService(Uuids.AMS_SERVICE)?.getCharacteristic(Uuids.AMS_REMOTE_COMMAND)
-            ?: return@post
+        if (c == null || _track.value.isEmpty) {
+            if (com.hmz.play.data.MediaBridge.command(cmd)) return@post
+        }
+        if (c == null) return@post
         if (cmd == Cmd.TOGGLE || cmd == Cmd.PLAY || cmd == Cmd.PAUSE) {
             // Optimistic UI update so the button feels instant.
             _track.update {

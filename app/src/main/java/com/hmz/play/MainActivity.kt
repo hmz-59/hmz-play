@@ -81,6 +81,8 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         refreshKey++ // reload app list (new installs)
+        com.hmz.play.data.MediaBridge.start(this)
+        com.hmz.play.data.Updater.check(this)
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {

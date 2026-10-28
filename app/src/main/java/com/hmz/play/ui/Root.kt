@@ -103,6 +103,7 @@ fun CarRoot(locationGranted: Boolean, refreshKey: Int, onRequestPermissions: () 
         }
         NotificationBanner(compact = compact, onOpen = { screen = Screen.NOTIFS })
         DestinationSheet()
+        UpdateBanner()
         CallOverlay()
     }
 }

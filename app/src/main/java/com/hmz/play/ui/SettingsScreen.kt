@@ -28,6 +28,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.hmz.play.data.Split
+import com.hmz.play.data.MediaBridge
+import com.hmz.play.data.UpdateState
+import com.hmz.play.data.Updater
+import com.hmz.play.BuildConfig
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -94,6 +98,49 @@ fun SettingsScreen(onRequestPermissions: () -> Unit) {
                     "Ensuite, la connexion se fait toute seule à chaque fois que tu montes dans la voiture.",
                     color = C.Sub, fontSize = 15.sp,
                 )
+            }
+        }
+
+        Spacer(Modifier.height(14.dp))
+        // Music through the car's own Bluetooth + updates
+        var musicOn by remember { mutableStateOf(MediaBridge.hasAccess(ctx)) }
+        val upd by Updater.state.collectAsStateWithLifecycle()
+        LifecycleResumeEffect(Unit) {
+            musicOn = MediaBridge.hasAccess(ctx)
+            if (musicOn) MediaBridge.start(ctx)
+            onPauseOrDispose { }
+        }
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+            Column(Modifier.weight(1f).card().padding(20.dp)) {
+                Text("Musique de l'iPhone (Bluetooth voiture)", color = C.Text, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                Text(
+                    if (musicOn) "Activé : titre, pochette et commandes de la musique en cours."
+                    else "Autorise « HMZ Play – musique » dans « Accès aux notifications ».",
+                    color = if (musicOn) C.Green else C.Sub, fontSize = 15.sp,
+                )
+                if (!musicOn) {
+                    Spacer(Modifier.height(10.dp))
+                    PillButton("Activer", C.Blue) { MediaBridge.openAccessSettings(ctx) }
+                }
+            }
+            Column(Modifier.weight(1f).card().padding(20.dp)) {
+                Text("Version ${BuildConfig.VERSION_NAME}", color = C.Text, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                Text(
+                    when (val u = upd) {
+                        is UpdateState.Available -> "Nouvelle version ${u.version} disponible."
+                        is UpdateState.Downloading -> "Téléchargement… ${u.percent} %"
+                        is UpdateState.UpToDate -> "Tu as la dernière version."
+                        is UpdateState.Failed -> u.reason
+                        else -> "Les mises à jour se font depuis cette appli."
+                    },
+                    color = C.Sub, fontSize = 15.sp,
+                )
+                Spacer(Modifier.height(10.dp))
+                if (upd is UpdateState.Available) {
+                    PillButton("Installer", C.Blue) { Updater.install(ctx) }
+                } else {
+                    PillButton("Vérifier", C.Panel2) { Updater.check(ctx, force = true) }
+                }
             }
         }
 
