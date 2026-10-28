@@ -72,10 +72,10 @@ fun CarRoot(locationGranted: Boolean, refreshKey: Int, onRequestPermissions: () 
     }
 
     // When the iPhone connects, open Waze on the left half automatically (once per start).
-    var autoOpened by rememberSaveable { mutableStateOf(false) }
-    LaunchedEffect(status) {
-        if (status == LinkStatus.CONNECTED && !autoOpened && Split.autoOpen(ctx)) {
-            autoOpened = true
+    // Open Waze next to HMZ Play once per start of the head unit (the iPhone link isn't required).
+    LaunchedEffect(Unit) {
+        if (!Split.autoOpenedThisBoot && Split.autoOpen(ctx) && Split.navPackage(ctx) != null) {
+            Split.autoOpenedThisBoot = true
             val inSplit = (ctx as? Activity)?.isInMultiWindowMode == true
             if (!inSplit) {
                 delay(900)

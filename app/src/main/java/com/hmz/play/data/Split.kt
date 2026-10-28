@@ -77,6 +77,10 @@ object Split {
 
     fun isNavigation(pkg: String) = pkg in NAVIGATION
 
+    /** Process-wide: true once Waze was auto-opened since the head unit started. */
+    @Volatile
+    var autoOpenedThisBoot = false
+
     fun navPackage(ctx: Context): String? =
         NAVIGATION.firstOrNull { ctx.packageManager.getLaunchIntentForPackage(it) != null }
 
