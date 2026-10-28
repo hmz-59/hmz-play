@@ -72,15 +72,22 @@ fun CarRoot(locationGranted: Boolean, refreshKey: Int, onRequestPermissions: () 
     }
 
     // When the iPhone connects, open Waze on the left half automatically (once per start).
-    // Open Waze next to HMZ Play once per start of the head unit (the iPhone link isn't required).
+    // Once per start of the head unit: make Bluetooth the audio source (the unit mutes it while
+    // HMZ Play is in front otherwise), then open Waze next to HMZ Play.
     LaunchedEffect(Unit) {
-        if (!Split.autoOpenedThisBoot && Split.autoOpen(ctx) && Split.navPackage(ctx) != null) {
-            Split.autoOpenedThisBoot = true
-            val inSplit = (ctx as? Activity)?.isInMultiWindowMode == true
-            if (!inSplit) {
-                delay(900)
-                Split.openNavigation(ctx)
+        val openWaze = {
+            if (!Split.autoOpenedThisBoot && Split.autoOpen(ctx) && Split.navPackage(ctx) != null) {
+                Split.autoOpenedThisBoot = true
+                if ((ctx as? Activity)?.isInMultiWindowMode != true) Split.openNavigation(ctx)
             }
+        }
+        if (!com.hmz.play.data.AudioSource.doneThisBoot) {
+            com.hmz.play.data.AudioSource.doneThisBoot = true
+            delay(600)
+            if (!com.hmz.play.data.AudioSource.activate(ctx) { openWaze() }) openWaze()
+        } else {
+            delay(900)
+            openWaze()
         }
     }
 

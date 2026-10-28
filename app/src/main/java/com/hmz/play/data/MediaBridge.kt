@@ -120,6 +120,7 @@ object MediaBridge {
         runCatching { controller?.unregisterCallback(callback) }
         controller = c
         runCatching { c?.registerCallback(callback) }
+        if (c != null) appCtx?.let { AudioSource.remember(it, c.packageName) }
         publish()
     }
 

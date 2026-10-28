@@ -133,9 +133,14 @@ fun SettingsScreen(onRequestPermissions: () -> Unit) {
                     else "Autorise « HMZ Play – musique » dans « Accès aux notifications ».",
                     color = if (musicOn) C.Green else C.Sub, fontSize = 15.sp,
                 )
-                if (!musicOn) {
-                    Spacer(Modifier.height(10.dp))
-                    PillButton("Activer", C.Blue) { MediaBridge.openAccessSettings(ctx) }
+                Spacer(Modifier.height(10.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    if (!musicOn) PillButton("Activer", C.Blue) { MediaBridge.openAccessSettings(ctx) }
+                    PillButton("Pas de son ? Réactiver", C.Panel2) {
+                        if (!com.hmz.play.data.AudioSource.activate(ctx)) {
+                            android.widget.Toast.makeText(ctx, "Appli Bluetooth de l'autoradio introuvable : ouvre-la une fois puis réessaie.", android.widget.Toast.LENGTH_LONG).show()
+                        }
+                    }
                 }
             }
             Column(Modifier.weight(1f).card().padding(20.dp)) {
