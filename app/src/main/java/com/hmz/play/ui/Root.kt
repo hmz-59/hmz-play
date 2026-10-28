@@ -31,6 +31,7 @@ import androidx.compose.material.icons.filled.BluetoothDisabled
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Navigation
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -101,6 +102,7 @@ fun CarRoot(locationGranted: Boolean, refreshKey: Int, onRequestPermissions: () 
             }
         }
         NotificationBanner(compact = compact, onOpen = { screen = Screen.NOTIFS })
+        DestinationSheet()
         CallOverlay()
     }
 }
@@ -187,6 +189,15 @@ private fun CompactHome(onNavigate: (Screen) -> Unit) {
         Modifier.fillMaxSize().padding(12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
+        Row(
+            Modifier.fillMaxWidth().clip(RoundedCornerShape(50)).background(C.Panel)
+                .tap(0.97f) { Ui.searchOpen = true }.padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(Icons.Filled.Search, null, tint = C.Sub, modifier = Modifier.size(20.dp))
+            Spacer(Modifier.width(10.dp))
+            Text("Où allons-nous ?", color = C.Text, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+        }
         NowPlayingCard(Modifier.weight(1f).fillMaxWidth()) { onNavigate(Screen.MUSIC) }
         InfoCard(Modifier.weight(0.8f).fillMaxWidth(), onNavigate)
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {

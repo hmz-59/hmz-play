@@ -160,7 +160,7 @@ private fun MapCard(locationGranted: Boolean, modifier: Modifier) {
                 .padding(14.dp)
                 .clip(RoundedCornerShape(50))
                 .background(C.Panel.copy(alpha = 0.94f))
-                .tap { Split.openNavigation(ctx) }
+                .tap { Ui.searchOpen = true }
                 .padding(horizontal = 18.dp, vertical = 13.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
