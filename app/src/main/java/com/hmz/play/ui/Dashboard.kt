@@ -286,7 +286,10 @@ fun InfoCard(modifier: Modifier, onNavigate: (Screen) -> Unit) {
                 Text(latest.message, color = C.Sub, fontSize = 15.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
             }
         } else {
-            val (icon, color, title, sub) = when (status) {
+            val carPhone by com.hmz.play.ble.CarBluetooth.connected.collectAsStateWithLifecycle()
+            val (icon, color, title, sub) = if (status != LinkStatus.CONNECTED && carPhone != null) {
+                Quad(Icons.Filled.PhoneIphone, C.Green, carPhone!!, "Connecté · appels et musique")
+            } else when (status) {
                 LinkStatus.CONNECTED -> Quad(Icons.Filled.PhoneIphone, C.Green, phone ?: "iPhone connecté", battery?.let { "Connecté · batterie $it %" } ?: "Connecté")
                 LinkStatus.CONNECTING -> Quad(Icons.Filled.Bluetooth, C.Blue, "Connexion…", "Liaison avec l'iPhone en cours")
                 LinkStatus.WAITING -> Quad(Icons.Filled.Bluetooth, C.Orange, "En attente de l'iPhone", "Touche ici pour le jumeler")

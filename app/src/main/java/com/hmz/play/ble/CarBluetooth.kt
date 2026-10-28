@@ -38,6 +38,10 @@ object CarBluetooth {
     private const val CALL_STATE_WAITING = 5
     private const val CALL_STATE_TERMINATED = 7
 
+    private val _connected = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
+    /** Name of the iPhone connected to the car's Bluetooth (calls/audio), or null. */
+    val connected: kotlinx.coroutines.flow.StateFlow<String?> = _connected
+
     private var started = false
     private var hfp: BluetoothProfile? = null
     private var currentDevice: BluetoothDevice? = null
@@ -52,12 +56,18 @@ object CarBluetooth {
         probe(app, adapter, MAP_CLIENT, "Messages (MAP)") { }
 
         val filter = IntentFilter().apply {
+            addAction("android.bluetooth.headsetclient.profile.action.CONNECTION_STATE_CHANGED")
             addAction(ACTION_CALL_CHANGED)
             addAction(ACTION_MAP_MESSAGE)
         }
         ContextCompat.registerReceiver(app, object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 when (intent.action) {
+                    "android.bluetooth.headsetclient.profile.action.CONNECTION_STATE_CHANGED" -> {
+                        val st = intent.getIntExtra(BluetoothProfile.EXTRA_STATE, -1)
+                        val d: BluetoothDevice? = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
+                        _connected.value = if (st == BluetoothProfile.STATE_CONNECTED) (runCatching { d?.name }.getOrNull() ?: "iPhone") else null
+                    }
                     ACTION_CALL_CHANGED -> onCall(intent)
                     ACTION_MAP_MESSAGE -> onMessage(intent)
                 }
@@ -70,7 +80,9 @@ object CarBluetooth {
             a.getProfileProxy(ctx, object : BluetoothProfile.ServiceListener {
                 override fun onServiceConnected(p: Int, proxy: BluetoothProfile) {
                     keep(proxy)
-                    val n = runCatching { proxy.connectedDevices.size }.getOrDefault(0)
+                    val devs = runCatching { proxy.connectedDevices }.getOrDefault(emptyList())
+                    val n = devs.size
+                    if (profile == HEADSET_CLIENT) _connected.value = devs.firstOrNull()?.let { runCatching { it.name }.getOrNull() ?: "iPhone" }
                     IphoneLink.note("$label : disponible${if (n > 0) " · iPhone connecté" else " · iPhone non connecté"}")
                 }
 
