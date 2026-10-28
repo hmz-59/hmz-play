@@ -44,7 +44,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hmz.play.ble.IphoneLink
 import com.hmz.play.ble.LinkStatus
 import com.hmz.play.data.Apps
+import com.hmz.play.data.Shell
 import com.hmz.play.data.Split
+import androidx.compose.foundation.Image
+import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.core.graphics.drawable.toBitmap
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -84,6 +89,18 @@ fun Sidebar(screen: Screen, onNavigate: (Screen) -> Unit) {
             DockButton(Icons.Filled.Navigation, C.Blue) { Split.openNavigation(ctx) }
             DockButton(Icons.Filled.MusicNote, C.Pink, active = track.playing) { onNavigate(Screen.MUSIC) }
             DockButton(Icons.AutoMirrored.Filled.Chat, C.Green, badge = notifs.size) { onNavigate(Screen.NOTIFS) }
+            // Recent apps, like the CarPlay side bar
+            val recents = remember(screen) {
+                Shell.recents(ctx).filterNot { Split.isNavigation(it) }.take(2).mapNotNull { pkg ->
+                    runCatching { pkg to ctx.packageManager.getApplicationIcon(pkg).toBitmap(160, 160).asImageBitmap() }.getOrNull()
+                }
+            }
+            recents.forEach { (pkg, icon) ->
+                Image(
+                    icon, null,
+                    modifier = Modifier.size(64.dp).clip(RoundedCornerShape(15.dp)).tap { Shell.open(ctx, pkg) },
+                )
+            }
         }
 
         Spacer(Modifier.weight(1f))
