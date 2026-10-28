@@ -32,6 +32,7 @@ import com.hmz.play.data.Split
 import com.hmz.play.data.MediaBridge
 import com.hmz.play.data.UpdateState
 import com.hmz.play.data.Updater
+import com.hmz.play.data.WazeInstaller
 import com.hmz.play.BuildConfig
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -156,6 +157,26 @@ fun SettingsScreen(onRequestPermissions: () -> Unit) {
                     PillButton("Vérifier", C.Panel2) { Updater.check(ctx, force = true) }
                 }
             }
+        }
+
+        Spacer(Modifier.height(14.dp))
+        // Waze
+        val wazeStatus by WazeInstaller.status.collectAsStateWithLifecycle()
+        var wazeOk by remember { mutableStateOf(WazeInstaller.wazeInstalled(ctx)) }
+        LifecycleResumeEffect(Unit) {
+            wazeOk = WazeInstaller.wazeInstalled(ctx)
+            onPauseOrDispose { }
+        }
+        Row(Modifier.fillMaxWidth().card().padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text("Waze", color = C.Text, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                Text(
+                    if (wazeOk) "Installé." else wazeStatus ?: "Pas encore installé sur l'autoradio.",
+                    color = if (wazeOk) C.Green else C.Sub, fontSize = 15.sp,
+                )
+            }
+            Spacer(Modifier.width(14.dp))
+            PillButton(if (wazeOk) "Ouvrir" else "Installer Waze", C.Blue) { WazeInstaller.start(ctx) }
         }
 
         Spacer(Modifier.height(14.dp))

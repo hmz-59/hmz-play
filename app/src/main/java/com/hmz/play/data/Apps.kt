@@ -78,13 +78,7 @@ object Apps {
 
     fun openNavigation(ctx: Context) {
         if (NAVIGATION.any { launch(ctx, it) }) return
-        // No navigation app installed: open Waze's page in the Play Store.
-        val store = Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.waze")).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        if (runCatching { ctx.startActivity(store) }.isSuccess) return
-        runCatching {
-            ctx.startActivity(
-                Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.waze")).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-            )
-        }
+        // No navigation app: install Waze (via Aurora Store, the Play Store says it's incompatible here).
+        WazeInstaller.start(ctx)
     }
 }
