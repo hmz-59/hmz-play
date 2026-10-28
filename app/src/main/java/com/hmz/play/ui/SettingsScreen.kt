@@ -177,7 +177,7 @@ fun SettingsScreen(onRequestPermissions: () -> Unit) {
                 Spacer(Modifier.height(8.dp))
             }
             if (log.isEmpty()) Text("Aucun événement pour l'instant.", color = C.Sub, fontSize = 14.sp)
-            log.take(12).forEach { line ->
+            log.take(16).forEach { line ->
                 Text(line, color = C.Text.copy(alpha = 0.85f), fontSize = 14.sp, fontFamily = FontFamily.Monospace)
             }
         }

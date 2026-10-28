@@ -269,8 +269,7 @@ object IphoneLink {
     }
 
     private fun restartAdvertising() {
-        runCatching { if (advertising) advertiser?.stopAdvertising(advCallback) }
-        advertising = false
+        stopAdvertisingAny()
         h.postDelayed({ startAdvertising() }, 400)
     }
 
@@ -355,6 +354,7 @@ object IphoneLink {
     private fun bringUp() {
         val a = adapter ?: return
         _tabletName.value = runCatching { a.name }.getOrNull() ?: "cette tablette"
+        note("Android ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT}) · ${Build.MANUFACTURER} ${Build.MODEL}")
         note("Bluetooth : ${_tabletName.value} · BLE ${if (runCatching { a.isMultipleAdvertisementSupported }.getOrDefault(false)) "OK" else "annonce non garantie"} · périph. ${if (a.bluetoothLeAdvertiser != null) "OK" else "NON SUPPORTÉ"}")
         openServer()
         startAdvertising()
@@ -368,7 +368,7 @@ object IphoneLink {
     }
 
     private fun tearDown() {
-        runCatching { if (advertising) advertiser?.stopAdvertising(advCallback) }
+        stopAdvertisingAny()
         advertising = false
         gatt?.let { runCatching { it.close() } }
         gatt = null
@@ -425,27 +425,80 @@ object IphoneLink {
         }
     }
 
+    private var advSet = false
+
+    /**
+     * Advertises as a separate BLE accessory that asks for Apple's notification service, so the
+     * iPhone lists it on its own instead of merging it with the car's audio Bluetooth.
+     * Uses an advertising set (own random address where the chip allows it), falls back to legacy.
+     */
     private fun startAdvertising(withName: Boolean = true) {
         if (advertising) return
         val adv = adapter?.bluetoothLeAdvertiser ?: run { note("Cet autoradio ne peut pas s'annoncer en BLE"); return }
         advertiser = adv
-        val settings = AdvertiseSettings.Builder()
-            .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
-            .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_MEDIUM)
-            .setConnectable(true)
-            .setTimeout(0)
-            .build()
         val data = AdvertiseData.Builder().setIncludeDeviceName(false).apply {
             if (Build.VERSION.SDK_INT >= 31) {
                 addServiceSolicitationUuid(ParcelUuid(Uuids.ANCS_SERVICE))
+                addServiceSolicitationUuid(ParcelUuid(Uuids.AMS_SERVICE))
             } else {
                 addServiceUuid(ParcelUuid(Uuids.OWN_SERVICE))
             }
         }.build()
         val scan = AdvertiseData.Builder().setIncludeDeviceName(withName).build()
         advNameRetry = withName
+
+        if (Build.VERSION.SDK_INT >= 26 && !advSetFailed) {
+            val pb = android.bluetooth.le.AdvertisingSetParameters.Builder()
+                .setLegacyMode(true)
+                .setConnectable(true)
+                .setScannable(true)
+                .setInterval(android.bluetooth.le.AdvertisingSetParameters.INTERVAL_LOW)
+                .setTxPowerLevel(android.bluetooth.le.AdvertisingSetParameters.TX_POWER_MEDIUM)
+            if (Build.VERSION.SDK_INT >= 34) {
+                runCatching { pb.setOwnAddressType(android.bluetooth.le.AdvertisingSetParameters.ADDRESS_TYPE_RANDOM) }
+            }
+            val ok = runCatching { adv.startAdvertisingSet(pb.build(), data, scan, null, null, setCallback) }.isSuccess
+            if (ok) return
+        }
+        val settings = AdvertiseSettings.Builder()
+            .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
+            .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_MEDIUM)
+            .setConnectable(true)
+            .setTimeout(0)
+            .build()
         runCatching { adv.startAdvertising(settings, data, scan, advCallback) }
-            .onFailure { Log.w(TAG, "advertise failed", it) }
+            .onFailure { note("Annonce BLE impossible : ${it.message}") }
+    }
+
+    private var advSetFailed = false
+
+    private val setCallback = object : android.bluetooth.le.AdvertisingSetCallback() {
+        override fun onAdvertisingSetStarted(set: android.bluetooth.le.AdvertisingSet?, txPower: Int, status: Int) {
+            h.post {
+                if (status == ADVERTISE_SUCCESS) {
+                    advertising = true
+                    advSet = true
+                    note("Annonce BLE (mode accessoire) active : cherche « ${_tabletName.value} » sur l'iPhone")
+                } else {
+                    note("Mode accessoire refusé (code $status), mode simple")
+                    advSetFailed = true
+                    advertising = false
+                    startAdvertising(advNameRetry)
+                }
+            }
+        }
+
+        override fun onAdvertisingSetStopped(set: android.bluetooth.le.AdvertisingSet?) {
+            h.post { advertising = false; advSet = false }
+        }
+    }
+
+    private fun stopAdvertisingAny() {
+        runCatching {
+            if (advSet) advertiser?.stopAdvertisingSet(setCallback) else if (advertising) advertiser?.stopAdvertising(advCallback)
+        }
+        advertising = false
+        advSet = false
     }
 
     private var advNameRetry = true
