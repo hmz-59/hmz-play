@@ -132,10 +132,10 @@ fun SettingsScreen(onRequestPermissions: () -> Unit) {
         Column(Modifier.fillMaxWidth().card().padding(20.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
-                    Text("Waze en écran partagé", color = C.Text, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                    Text("Barre CarPlay + Waze en écran partagé", color = C.Text, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
                     Text(
-                        if (splitOn) "Activé : Waze à gauche, HMZ Play à droite."
-                        else "Active « HMZ Play – écran partagé » dans Accessibilité (une seule fois).",
+                        if (splitOn) "Activé : la barre HMZ reste à gauche dans toutes les applis, Waze s'ouvre à côté de HMZ Play."
+                        else "Active « HMZ Play – barre CarPlay » dans Accessibilité (une seule fois).",
                         color = if (splitOn) C.Green else C.Sub, fontSize = 15.sp,
                     )
                 }

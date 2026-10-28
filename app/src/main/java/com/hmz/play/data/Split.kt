@@ -16,16 +16,53 @@ import com.hmz.play.MainActivity
  * normal app put another app in split screen, but an enabled accessibility service can.
  */
 class SplitService : AccessibilityService() {
+    private var dock: Dock? = null
+    private var homes: Set<String> = emptySet()
+    private var lastPkg: String? = null
+
     override fun onServiceConnected() {
         instance = this
+        dock = Dock(this)
+        homes = packageManager.queryIntentActivities(
+            Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0,
+        ).map { it.activityInfo.packageName }.toSet() - packageName
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
+        dock?.release()
+        dock = null
         instance = null
         return super.onUnbind(intent)
     }
 
-    override fun onAccessibilityEvent(event: AccessibilityEvent?) = Unit
+    override fun onAccessibilityEvent(event: AccessibilityEvent?) {
+        if (event?.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
+        val pkg = event.packageName?.toString() ?: return
+        if (pkg == lastPkg) return
+        when {
+            pkg == packageName -> { lastPkg = pkg; dock?.hide() }
+            pkg in homes -> { lastPkg = pkg; dock?.hide() }
+            // Ignore system bars, keyboards, dialogs: they don't change the app on screen.
+            packageManager.getLaunchIntentForPackage(pkg) == null -> Unit
+            else -> {
+                lastPkg = pkg
+                Shell.record(this, pkg)
+                refresh(pkg)
+            }
+        }
+    }
+
+    /** Called by HMZ Play when its own visibility changes. */
+    fun refresh(pkg: String? = lastPkg) {
+        val p = pkg ?: return
+        if (Shell.hmzVisible || p == packageName || p in homes) dock?.hide() else dock?.show(p)
+    }
+
+    fun showDockFor(pkg: String) {
+        lastPkg = pkg
+        Handler(Looper.getMainLooper()).postDelayed({ refresh(pkg) }, 350)
+    }
+
     override fun onInterrupt() = Unit
 
     companion object {

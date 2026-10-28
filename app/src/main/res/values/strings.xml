@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="split_service_label">HMZ Play – écran partagé</string>
-    <string name="split_service_description">Permet à HMZ Play de placer Waze à gauche et HMZ Play à droite (écran partagé). Aucune donnée n\'est lue.</string>
+    <string name="split_service_label">HMZ Play – barre CarPlay</string>
+    <string name="split_service_description">Affiche la barre HMZ Play (heure, applis récentes, musique, accueil) par-dessus les applis et place Waze en écran partagé. Seul le nom de l\'appli à l\'écran est utilisé, aucun contenu n\'est lu.</string>
 </resources>

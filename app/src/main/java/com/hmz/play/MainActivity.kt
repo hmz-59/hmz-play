@@ -21,6 +21,8 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.hmz.play.ble.IphoneLink
 import com.hmz.play.ble.LinkService
+import com.hmz.play.data.Shell
+import com.hmz.play.data.SplitService
 import com.hmz.play.ui.CarRoot
 import com.hmz.play.ui.HmzTheme
 import org.osmdroid.config.Configuration
@@ -62,6 +64,18 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Shell.hmzVisible = true
+        SplitService.instance?.refresh()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Shell.hmzVisible = false
+        SplitService.instance?.refresh()
     }
 
     override fun onResume() {

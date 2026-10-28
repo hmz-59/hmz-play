@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hmz.play.data.AppEntry
 import com.hmz.play.data.Apps
+import com.hmz.play.data.Shell
 import com.hmz.play.data.Split
 
 private sealed interface GridItem {
@@ -84,11 +85,7 @@ fun AppGrid(apps: List<AppEntry>, onNavigate: (Screen) -> Unit) {
                                     if (item != null) GridIcon(item) {
                                         when (item) {
                                             is GridItem.Builtin -> item.action()
-                                            is GridItem.App -> if (Split.isNavigation(item.entry.pkg)) {
-                                                Split.openNavigation(ctx, item.entry.pkg)
-                                            } else {
-                                                Apps.launch(ctx, item.entry.pkg)
-                                            }
+                                            is GridItem.App -> Shell.open(ctx, item.entry.pkg)
                                         }
                                     }
                                 }
