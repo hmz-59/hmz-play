@@ -48,6 +48,7 @@ class LinkService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         IphoneLink.start(this)
+        CarBluetooth.start(this)
         return START_STICKY
     }
 

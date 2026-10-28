@@ -215,8 +215,21 @@ object IphoneLink {
         enqueue(Op.Write(c, byteArrayOf(cmd.toByte()), BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT))
     }
 
+    /** Notifications/calls coming from the car's classic Bluetooth (MAP / HFP), see CarBluetooth. */
+    fun pushExternalNotif(n: PhoneNotif) {
+        _notifications.update { list -> (listOf(n) + list.filterNot { it.uid == n.uid }).take(60) }
+        _banners.tryEmit(n)
+    }
+
+    fun setExternalCall(c: IncomingCall?) { _call.value = c }
+
     fun answerCall(accept: Boolean) = h.post {
         val call = _call.value ?: return@post
+        if (call.uid < 0) {
+            CarBluetooth.answer(accept)
+            _call.value = null
+            return@post
+        }
         val cp = gatt?.getService(Uuids.ANCS_SERVICE)?.getCharacteristic(Uuids.ANCS_CONTROL_POINT)
         if (cp != null) {
             val data = byteArrayOf(2) + le32(call.uid) + byteArrayOf(if (accept) 0 else 1)
