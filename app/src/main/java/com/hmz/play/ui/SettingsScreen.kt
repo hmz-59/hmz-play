@@ -1,0 +1,136 @@
+package com.hmz.play.ui
+
+import android.content.Intent
+import android.provider.Settings
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.hmz.play.ble.IphoneLink
+import com.hmz.play.ble.LinkStatus
+
+@Composable
+fun SettingsScreen(onRequestPermissions: () -> Unit) {
+    val ctx = LocalContext.current
+    val status by IphoneLink.status.collectAsStateWithLifecycle()
+    val tablet by IphoneLink.tabletName.collectAsStateWithLifecycle()
+    val phone by IphoneLink.phoneName.collectAsStateWithLifecycle()
+    val battery by IphoneLink.battery.collectAsStateWithLifecycle()
+
+    Column(
+        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 24.dp, vertical = 18.dp),
+    ) {
+        Text("Réglages", color = C.Text, fontSize = 30.sp, fontWeight = FontWeight.Bold)
+        Spacer(Modifier.height(16.dp))
+
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+            // Status
+            Column(Modifier.weight(1f).card().padding(20.dp)) {
+                val (dot, label) = when (status) {
+                    LinkStatus.CONNECTED -> C.Green to "Connecté à ${phone ?: "l'iPhone"}" + (battery?.let { " · $it %" } ?: "")
+                    LinkStatus.CONNECTING -> C.Blue to "Connexion en cours…"
+                    LinkStatus.WAITING -> C.Orange to "En attente de l'iPhone"
+                    LinkStatus.BLUETOOTH_OFF -> C.Red to "Bluetooth désactivé"
+                    LinkStatus.NEED_PERMISSION -> C.Red to "Autorisations manquantes"
+                }
+                Text("ÉTAT", color = C.Sub, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                Spacer(Modifier.height(8.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.size(12.dp).clip(CircleShape).background(dot))
+                    Spacer(Modifier.width(10.dp))
+                    Text(label, color = C.Text, fontSize = 19.sp, fontWeight = FontWeight.SemiBold)
+                }
+                Spacer(Modifier.height(18.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    if (status == LinkStatus.NEED_PERMISSION) PillButton("Autoriser", C.Blue, onRequestPermissions)
+                    if (status == LinkStatus.BLUETOOTH_OFF) PillButton("Ouvrir Bluetooth", C.Blue) {
+                        ctx.startActivity(Intent(Settings.ACTION_BLUETOOTH_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                    }
+                    PillButton("Oublier l'iPhone", C.Panel2) { IphoneLink.forgetPhone() }
+                }
+            }
+            // Pairing guide
+            Column(Modifier.weight(1.3f).card().padding(20.dp)) {
+                Text("JUMELER TON IPHONE (une seule fois)", color = C.Sub, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                Spacer(Modifier.height(10.dp))
+                Step(1, "Sur l'iPhone : Réglages → Bluetooth.")
+                Step(2, "Sous « Autres appareils », touche « $tablet ».")
+                Step(3, "Accepte le jumelage sur l'iPhone et sur la tablette.")
+                Step(4, "Autorise « Afficher les notifications » sur l'iPhone.")
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    "Ensuite, la connexion se fait toute seule à chaque fois que tu montes dans la voiture.",
+                    color = C.Sub, fontSize = 15.sp,
+                )
+            }
+        }
+
+        Spacer(Modifier.height(14.dp))
+        Row(
+            Modifier.fillMaxWidth().card().padding(20.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text("Écran d'accueil", color = C.Text, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                Text(
+                    "Choisis HMZ Play comme appli d'accueil pour que la tablette démarre directement dessus.",
+                    color = C.Sub, fontSize = 15.sp,
+                )
+            }
+            Spacer(Modifier.width(14.dp))
+            PillButton("Choisir", C.Blue) {
+                runCatching {
+                    ctx.startActivity(Intent(Settings.ACTION_HOME_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun Step(n: Int, text: String) {
+    Row(Modifier.padding(vertical = 5.dp), verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.size(26.dp).clip(CircleShape).background(C.Blue), contentAlignment = Alignment.Center) {
+            Text("$n", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+        }
+        Spacer(Modifier.width(12.dp))
+        Text(text, color = C.Text, fontSize = 17.sp)
+    }
+}
+
+@Composable
+fun PillButton(label: String, color: Color, onClick: () -> Unit) {
+    Box(
+        Modifier
+            .clip(RoundedCornerShape(50))
+            .background(color)
+            .tap(0.94f, onClick)
+            .padding(horizontal = 20.dp, vertical = 12.dp),
+    ) {
+        Text(label, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+    }
+}
