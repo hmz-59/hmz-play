@@ -33,7 +33,7 @@ sealed interface UpdateState {
  * the new version with one tap. Android always asks the user to confirm the install.
  */
 object Updater {
-    private const val REPO = "hmz-59/hmz-play-update"
+    private const val REPO = "hmz-59/hmz-play"
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private val _state = MutableStateFlow<UpdateState>(UpdateState.Idle)
     val state: StateFlow<UpdateState> = _state.asStateFlow()
