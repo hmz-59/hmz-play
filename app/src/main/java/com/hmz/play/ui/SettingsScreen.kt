@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -93,6 +94,30 @@ fun SettingsScreen(onRequestPermissions: () -> Unit) {
                     "Ensuite, la connexion se fait toute seule à chaque fois que tu montes dans la voiture.",
                     color = C.Sub, fontSize = 15.sp,
                 )
+            }
+        }
+
+        Spacer(Modifier.height(14.dp))
+        // Diagnostic
+        val log by IphoneLink.log.collectAsStateWithLifecycle()
+        val bonded = remember(status) { IphoneLink.bondedDevices() }
+        Column(Modifier.fillMaxWidth().card().padding(20.dp)) {
+            Text("DIAGNOSTIC (envoie une photo de ce cadre si ça bloque)", color = C.Sub, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+            Spacer(Modifier.height(8.dp))
+            if (bonded.isNotEmpty()) {
+                Text("Appareils déjà jumelés — touche ton iPhone pour forcer la liaison :", color = C.Text, fontSize = 15.sp)
+                Spacer(Modifier.height(8.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    bonded.take(4).forEach { (name, addr) -> PillButton(name, C.Panel2) { IphoneLink.connectTo(addr) } }
+                }
+                Spacer(Modifier.height(10.dp))
+            } else {
+                Text("Aucun appareil jumelé visible par Android.", color = C.Sub, fontSize = 15.sp)
+                Spacer(Modifier.height(8.dp))
+            }
+            if (log.isEmpty()) Text("Aucun événement pour l'instant.", color = C.Sub, fontSize = 14.sp)
+            log.take(12).forEach { line ->
+                Text(line, color = C.Text.copy(alpha = 0.85f), fontSize = 14.sp, fontFamily = FontFamily.Monospace)
             }
         }
 

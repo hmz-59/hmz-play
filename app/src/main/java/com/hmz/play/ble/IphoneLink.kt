@@ -140,6 +140,26 @@ object IphoneLink {
     private val _banners = MutableSharedFlow<PhoneNotif>(extraBufferCapacity = 8)
     val banners: SharedFlow<PhoneNotif> = _banners.asSharedFlow()
 
+    private val _log = MutableStateFlow<List<String>>(emptyList())
+    val log: StateFlow<List<String>> = _log.asStateFlow()
+
+    fun note(msg: String) {
+        Log.i(TAG, msg)
+        val t = java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.FRANCE).format(java.util.Date())
+        _log.update { (listOf("$t  $msg") + it).take(40) }
+    }
+
+    /** Devices already paired with this head unit (classic Bluetooth), to try a direct link. */
+    fun bondedDevices(): List<Pair<String, String>> = runCatching {
+        adapter?.bondedDevices.orEmpty().map { (it.name ?: it.address) to it.address }
+    }.getOrDefault(emptyList())
+
+    fun connectTo(address: String) = h.post {
+        val d = runCatching { adapter?.getRemoteDevice(address) }.getOrNull() ?: return@post
+        note("Connexion directe à ${d.name ?: address}…")
+        connect(d, auto = false)
+    }
+
     private val thread = HandlerThread("hmz-ble").apply { start() }
     private val h = Handler(thread.looper)
 
@@ -215,6 +235,7 @@ object IphoneLink {
         val mgr = ctx.getSystemService(BluetoothManager::class.java)
         adapter = mgr?.adapter
         if (adapter == null) {
+            note("Aucun adaptateur Bluetooth accessible à Android")
             _status.value = LinkStatus.BLUETOOTH_OFF
             return
         }
@@ -249,8 +270,9 @@ object IphoneLink {
                         val state = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, -1)
                         val g = gatt ?: return
                         val dev = deviceFrom(intent) ?: return
+                        if (dev.address == g.device.address) note("Jumelage : état $state")
                         if (dev.address == g.device.address && state == BluetoothDevice.BOND_BONDED) {
-                            Log.i(TAG, "Bonded, rediscovering services")
+                            note("Jumelage terminé, recherche des services")
                             h.postDelayed({ gatt?.discoverServices() }, 600)
                         }
                     }
@@ -270,6 +292,7 @@ object IphoneLink {
     private fun bringUp() {
         val a = adapter ?: return
         _tabletName.value = runCatching { a.name }.getOrNull() ?: "cette tablette"
+        note("Bluetooth : ${_tabletName.value} · BLE ${if (runCatching { a.isMultipleAdvertisementSupported }.getOrDefault(false)) "OK" else "annonce non garantie"} · périph. ${if (a.bluetoothLeAdvertiser != null) "OK" else "NON SUPPORTÉ"}")
         openServer()
         startAdvertising()
         val saved = prefs()?.getString(KEY_ADDR, null)
@@ -324,7 +347,7 @@ object IphoneLink {
         override fun onConnectionStateChange(device: BluetoothDevice, status: Int, newState: Int) {
             h.post {
                 if (newState == BluetoothProfile.STATE_CONNECTED && gatt == null) {
-                    Log.i(TAG, "iPhone connected to our server, opening client link")
+                    note("${device.name ?: device.address} s'est connecté, ouverture du lien")
                     connect(device, auto = false)
                 }
             }
@@ -341,7 +364,7 @@ object IphoneLink {
 
     private fun startAdvertising(withName: Boolean = true) {
         if (advertising) return
-        val adv = adapter?.bluetoothLeAdvertiser ?: return
+        val adv = adapter?.bluetoothLeAdvertiser ?: run { note("Cet autoradio ne peut pas s'annoncer en BLE"); return }
         advertiser = adv
         val settings = AdvertiseSettings.Builder()
             .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
@@ -366,11 +389,12 @@ object IphoneLink {
 
     private val advCallback = object : AdvertiseCallback() {
         override fun onStartSuccess(settingsInEffect: AdvertiseSettings) {
+            note("Annonce BLE active : visible par l'iPhone")
             advertising = true
         }
 
         override fun onStartFailure(errorCode: Int) {
-            Log.w(TAG, "advertise error $errorCode")
+            note("Échec annonce BLE (code $errorCode)")
             advertising = false
             if (errorCode == ADVERTISE_FAILED_DATA_TOO_LARGE && advNameRetry) {
                 h.post { startAdvertising(withName = false) }
@@ -394,12 +418,13 @@ object IphoneLink {
             h.post {
                 if (g != gatt) return@post
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
+                    note("Lien établi avec ${g.device.name ?: g.device.address} (état jumelage ${g.device.bondState})")
                     _status.value = LinkStatus.CONNECTING
                     _phoneName.value = runCatching { g.device.name }.getOrNull()
                     ops.clear(); inFlight = null
                     if (!g.requestMtu(247)) g.discoverServices()
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                    Log.i(TAG, "Disconnected ($status)")
+                    note("Déconnecté (code $status)")
                     val dev = g.device
                     runCatching { g.close() }
                     gatt = null
@@ -464,10 +489,11 @@ object IphoneLink {
     private fun setup(g: BluetoothGatt) {
         val ancs = g.getService(Uuids.ANCS_SERVICE)
         val ams = g.getService(Uuids.AMS_SERVICE)
+        note("Services : notifications ${if (ancs != null) "OK" else "—"} · musique ${if (ams != null) "OK" else "—"}")
         if (ancs == null && ams == null) {
             // Apple hides these services until the link is bonded/encrypted.
             if (g.device.bondState == BluetoothDevice.BOND_NONE) {
-                Log.i(TAG, "Not bonded yet, requesting pairing")
+                note("Services Apple cachés : demande de jumelage")
                 g.device.createBond()
             } else if (discoverAttempts++ < 6) {
                 h.postDelayed({ if (g == gatt) g.discoverServices() }, 2000)
