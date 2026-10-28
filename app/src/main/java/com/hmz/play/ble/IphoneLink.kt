@@ -260,6 +260,7 @@ object IphoneLink {
         note(if (ok) "Mode jumelage : visible sous « $PAIR_NAME » pendant 2 min" else "Impossible de renommer le Bluetooth de l'autoradio")
         if (!ok) return@post
         _tabletName.value = PAIR_NAME
+        openServer()
         restartAdvertising()
         _pairingUntil.value = SystemClock.elapsedRealtime() + 120_000
         h.removeCallbacks(endPairing)
@@ -278,7 +279,7 @@ object IphoneLink {
         }
         savedName = null
         _pairingUntil.value = 0L
-        restartAdvertising()
+        if (Build.VERSION.SDK_INT >= 31) restartAdvertising() else stopAdvertisingAny()
     }
 
     private fun restartAdvertising() {
@@ -369,8 +370,15 @@ object IphoneLink {
         _tabletName.value = runCatching { a.name }.getOrNull() ?: "cette tablette"
         note("Android ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT}) · ${Build.MANUFACTURER} ${Build.MODEL}")
         note("Bluetooth : ${_tabletName.value} · BLE ${if (runCatching { a.isMultipleAdvertisementSupported }.getOrDefault(false)) "OK" else "annonce non garantie"} · périph. ${if (a.bluetoothLeAdvertiser != null) "OK" else "NON SUPPORTÉ"}")
-        openServer()
-        startAdvertising()
+        // On Android < 12 the iPhone can't see this accessory anyway, and constant BLE advertising
+        // on a single MediaTek radio can choke the Bluetooth music stream. Only advertise on
+        // Android 12+ or while the pairing mode is explicitly running.
+        if (Build.VERSION.SDK_INT >= 31 || _pairingUntil.value > 0L) {
+            openServer()
+            startAdvertising()
+        } else {
+            note("Annonce BLE coupée (inutile sur cet autoradio) pour préserver le son Bluetooth")
+        }
         val saved = prefs()?.getString(KEY_ADDR, null)
         if (saved != null && gatt == null) {
             runCatching { a.getRemoteDevice(saved) }.getOrNull()?.let { connect(it, auto = true) }
@@ -465,7 +473,7 @@ object IphoneLink {
                 .setLegacyMode(true)
                 .setConnectable(true)
                 .setScannable(true)
-                .setInterval(android.bluetooth.le.AdvertisingSetParameters.INTERVAL_LOW)
+                .setInterval(android.bluetooth.le.AdvertisingSetParameters.INTERVAL_MEDIUM)
                 .setTxPowerLevel(android.bluetooth.le.AdvertisingSetParameters.TX_POWER_MEDIUM)
             if (Build.VERSION.SDK_INT >= 34) {
                 // setOwnAddressType(ADDRESS_TYPE_RANDOM = 1), called by reflection (newer SDK API)
@@ -475,7 +483,7 @@ object IphoneLink {
             if (ok) return
         }
         val settings = AdvertiseSettings.Builder()
-            .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
+            .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_BALANCED)
             .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_MEDIUM)
             .setConnectable(true)
             .setTimeout(0)
@@ -560,8 +568,9 @@ object IphoneLink {
                     gatt = null
                     resetSession()
                     _status.value = if (adapter?.isEnabled == true) LinkStatus.WAITING else LinkStatus.BLUETOOTH_OFF
-                    val known = prefs()?.getString(KEY_ADDR, null) == dev.address ||
-                        dev.bondState == BluetoothDevice.BOND_BONDED
+                    // Only retry a phone that really completed the BLE link before. A merely bonded
+                    // iPhone (classic Bluetooth audio) would make this loop forever and starve the radio.
+                    val known = prefs()?.getString(KEY_ADDR, null) == dev.address
                     if (known) h.postDelayed({ if (gatt == null) connect(dev, auto = true) }, 1500)
                 }
             }
