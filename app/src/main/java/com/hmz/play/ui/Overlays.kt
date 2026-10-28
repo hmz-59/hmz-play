@@ -59,7 +59,7 @@ import kotlinx.coroutines.delay
 
 /** Slide-down banner for new iPhone notifications. */
 @Composable
-fun NotificationBanner(onOpen: () -> Unit) {
+fun NotificationBanner(compact: Boolean = false, onOpen: () -> Unit) {
     var current by remember { mutableStateOf<PhoneNotif?>(null) }
     var last by remember { mutableStateOf<PhoneNotif?>(null) }
 
@@ -76,7 +76,10 @@ fun NotificationBanner(onOpen: () -> Unit) {
         }
     }
 
-    Box(Modifier.fillMaxWidth().padding(top = 14.dp, start = 104.dp), contentAlignment = Alignment.TopCenter) {
+    Box(
+        Modifier.fillMaxWidth().padding(top = 14.dp, start = if (compact) 12.dp else 104.dp, end = if (compact) 12.dp else 0.dp),
+        contentAlignment = Alignment.TopCenter,
+    ) {
         AnimatedVisibility(
             visible = current != null,
             enter = slideInVertically(spring(dampingRatio = 0.75f, stiffness = 500f)) { -it * 2 } + fadeIn(),
@@ -86,7 +89,7 @@ fun NotificationBanner(onOpen: () -> Unit) {
             Row(
                 Modifier
                     .widthIn(max = 620.dp)
-                    .fillMaxWidth(0.8f)
+                    .fillMaxWidth(if (compact) 1f else 0.8f)
                     .clip(RoundedCornerShape(20.dp))
                     .background(C.Panel2)
                     .tap(0.97f) {

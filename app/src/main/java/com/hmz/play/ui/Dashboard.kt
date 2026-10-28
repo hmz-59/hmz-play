@@ -64,6 +64,7 @@ import com.hmz.play.ble.IphoneLink
 import com.hmz.play.ble.LinkStatus
 import com.hmz.play.ble.Track
 import com.hmz.play.data.Apps
+import com.hmz.play.data.Split
 import kotlinx.coroutines.delay
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
@@ -151,7 +152,7 @@ private fun MapCard(locationGranted: Boolean, modifier: Modifier) {
         Box(
             Modifier
                 .fillMaxSize()
-                .clickable(remember { MutableInteractionSource() }, null) { Apps.openNavigation(ctx) },
+                .clickable(remember { MutableInteractionSource() }, null) { Split.openNavigation(ctx) },
         )
         Row(
             Modifier
@@ -159,7 +160,7 @@ private fun MapCard(locationGranted: Boolean, modifier: Modifier) {
                 .padding(14.dp)
                 .clip(RoundedCornerShape(50))
                 .background(C.Panel.copy(alpha = 0.94f))
-                .tap { Apps.openNavigation(ctx) }
+                .tap { Split.openNavigation(ctx) }
                 .padding(horizontal = 18.dp, vertical = 13.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -207,7 +208,7 @@ fun ProgressBar(track: Track, modifier: Modifier = Modifier, height: Dp = 5.dp) 
 }
 
 @Composable
-private fun NowPlayingCard(modifier: Modifier, onOpen: () -> Unit) {
+fun NowPlayingCard(modifier: Modifier, onOpen: () -> Unit) {
     val track by IphoneLink.track.collectAsStateWithLifecycle()
     Column(modifier.card().tap(0.97f, onOpen).padding(18.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -250,7 +251,7 @@ fun ControlButton(icon: ImageVector, size: Dp, onClick: () -> Unit) {
 // ------------------------------------------------------------------ info card
 
 @Composable
-private fun InfoCard(modifier: Modifier, onNavigate: (Screen) -> Unit) {
+fun InfoCard(modifier: Modifier, onNavigate: (Screen) -> Unit) {
     val status by IphoneLink.status.collectAsStateWithLifecycle()
     val notifs by IphoneLink.notifications.collectAsStateWithLifecycle()
     val battery by IphoneLink.battery.collectAsStateWithLifecycle()

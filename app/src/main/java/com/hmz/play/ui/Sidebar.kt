@@ -44,6 +44,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hmz.play.ble.IphoneLink
 import com.hmz.play.ble.LinkStatus
 import com.hmz.play.data.Apps
+import com.hmz.play.data.Split
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -80,7 +81,7 @@ fun Sidebar(screen: Screen, onNavigate: (Screen) -> Unit) {
         Spacer(Modifier.weight(1f))
 
         Column(verticalArrangement = Arrangement.spacedBy(18.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            DockButton(Icons.Filled.Navigation, C.Blue) { Apps.openNavigation(ctx) }
+            DockButton(Icons.Filled.Navigation, C.Blue) { Split.openNavigation(ctx) }
             DockButton(Icons.Filled.MusicNote, C.Pink, active = track.playing) { onNavigate(Screen.MUSIC) }
             DockButton(Icons.AutoMirrored.Filled.Chat, C.Green, badge = notifs.size) { onNavigate(Screen.NOTIFS) }
         }
@@ -146,7 +147,7 @@ private fun DockButton(
 }
 
 @Composable
-private fun Clock() {
+fun Clock() {
     val fmt = SimpleDateFormat("HH:mm", Locale.FRANCE)
     val time by produceState(fmt.format(Date())) {
         while (true) {

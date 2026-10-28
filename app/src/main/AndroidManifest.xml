@@ -56,5 +56,18 @@
             android:name=".ble.LinkService"
             android:exported="false"
             android:foregroundServiceType="connectedDevice" />
+
+        <service
+            android:name=".data.SplitService"
+            android:exported="true"
+            android:label="@string/split_service_label"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/split_service" />
+        </service>
     </application>
 </manifest>

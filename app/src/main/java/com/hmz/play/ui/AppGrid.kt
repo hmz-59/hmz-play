@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hmz.play.data.AppEntry
 import com.hmz.play.data.Apps
+import com.hmz.play.data.Split
 
 private sealed interface GridItem {
     val label: String
@@ -54,7 +55,7 @@ private sealed interface GridItem {
 fun AppGrid(apps: List<AppEntry>, onNavigate: (Screen) -> Unit) {
     val ctx = LocalContext.current
     val builtins = listOf(
-        GridItem.Builtin("Itinéraire", Icons.Filled.Navigation, C.Blue) { Apps.openNavigation(ctx) },
+        GridItem.Builtin("Itinéraire", Icons.Filled.Navigation, C.Blue) { Split.openNavigation(ctx) },
         GridItem.Builtin("Musique", Icons.Filled.MusicNote, C.Pink) { onNavigate(Screen.MUSIC) },
         GridItem.Builtin("Messages", Icons.AutoMirrored.Filled.Chat, C.Green) { onNavigate(Screen.NOTIFS) },
         GridItem.Builtin("Réglages", Icons.Filled.Settings, Color(0xFF636366)) { onNavigate(Screen.SETTINGS) },
@@ -83,7 +84,11 @@ fun AppGrid(apps: List<AppEntry>, onNavigate: (Screen) -> Unit) {
                                     if (item != null) GridIcon(item) {
                                         when (item) {
                                             is GridItem.Builtin -> item.action()
-                                            is GridItem.App -> Apps.launch(ctx, item.entry.pkg)
+                                            is GridItem.App -> if (Split.isNavigation(item.entry.pkg)) {
+                                                Split.openNavigation(ctx, item.entry.pkg)
+                                            } else {
+                                                Apps.launch(ctx, item.entry.pkg)
+                                            }
                                         }
                                     }
                                 }

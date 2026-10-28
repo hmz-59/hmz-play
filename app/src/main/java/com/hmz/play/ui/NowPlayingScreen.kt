@@ -46,12 +46,28 @@ import com.hmz.play.ble.IphoneLink
 fun NowPlayingScreen() {
     val track by IphoneLink.track.collectAsStateWithLifecycle()
 
-    BoxWithConstraints(Modifier.fillMaxSize().padding(28.dp)) {
-        val art = minOf(maxHeight * 0.82f, maxWidth * 0.38f)
-        Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
-            Artwork(track, art, 22.dp)
-            Spacer(Modifier.width(36.dp))
-            Column(Modifier.weight(1f)) {
+    BoxWithConstraints(Modifier.fillMaxSize().padding(24.dp)) {
+        val narrow = maxWidth < 600.dp
+        if (narrow) {
+            Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center) {
+                Artwork(track, minOf(maxHeight * 0.32f, maxWidth * 0.5f), 18.dp)
+                Spacer(Modifier.height(18.dp))
+                TrackDetails(track)
+            }
+        } else {
+            val art = minOf(maxHeight * 0.82f, maxWidth * 0.38f)
+            Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
+                Artwork(track, art, 22.dp)
+                Spacer(Modifier.width(36.dp))
+                Box(Modifier.weight(1f)) { TrackDetails(track) }
+            }
+        }
+    }
+}
+
+@Composable
+private fun TrackDetails(track: com.hmz.play.ble.Track) {
+            Column(Modifier.fillMaxWidth()) {
                 Text(
                     track.playerName.ifBlank { "iPhone" }.uppercase(),
                     color = C.Sub, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 1.sp,
@@ -105,6 +121,4 @@ fun NowPlayingScreen() {
                     ControlButton(Icons.AutoMirrored.Filled.VolumeUp, 30.dp) { IphoneLink.command(Cmd.VOLUME_UP) }
                 }
             }
-        }
-    }
 }

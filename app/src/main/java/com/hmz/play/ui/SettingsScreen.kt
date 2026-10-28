@@ -18,9 +18,16 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.LifecycleResumeEffect
+import com.hmz.play.data.Split
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -85,6 +92,41 @@ fun SettingsScreen(onRequestPermissions: () -> Unit) {
                 Text(
                     "Ensuite, la connexion se fait toute seule à chaque fois que tu montes dans la voiture.",
                     color = C.Sub, fontSize = 15.sp,
+                )
+            }
+        }
+
+        Spacer(Modifier.height(14.dp))
+        // Split screen: Waze left, HMZ Play right
+        var auto by remember { mutableStateOf(Split.autoOpen(ctx)) }
+        var splitOn by remember { mutableStateOf(Split.serviceEnabled()) }
+        LifecycleResumeEffect(Unit) {
+            splitOn = Split.serviceEnabled()
+            onPauseOrDispose { }
+        }
+        Column(Modifier.fillMaxWidth().card().padding(20.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text("Waze en écran partagé", color = C.Text, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                    Text(
+                        if (splitOn) "Activé : Waze à gauche, HMZ Play à droite."
+                        else "Active « HMZ Play – écran partagé » dans Accessibilité (une seule fois).",
+                        color = if (splitOn) C.Green else C.Sub, fontSize = 15.sp,
+                    )
+                }
+                Spacer(Modifier.width(14.dp))
+                if (!splitOn) PillButton("Activer", C.Blue) { Split.openAccessibilitySettings(ctx) }
+            }
+            Spacer(Modifier.height(14.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    "Ouvrir Waze automatiquement quand l'iPhone se connecte",
+                    color = C.Text, fontSize = 16.sp, modifier = Modifier.weight(1f),
+                )
+                Switch(
+                    checked = auto,
+                    onCheckedChange = { auto = it; Split.setAutoOpen(ctx, it) },
+                    colors = SwitchDefaults.colors(checkedTrackColor = C.Green, checkedThumbColor = Color.White),
                 )
             }
         }

@@ -18,6 +18,9 @@
 3. Lance HMZ Play, accepte les autorisations.
 4. Sur l'iPhone : Réglages → Bluetooth → touche le nom de la tablette sous « Autres appareils », accepte le jumelage et « Afficher les notifications ».
 5. (Conseillé) Réglages de HMZ Play → « Écran d'accueil » → choisis HMZ Play.
+6. Pour Waze en écran partagé : Réglages de HMZ Play → « Waze en écran partagé » → Activer, puis active « HMZ Play – écran partagé » dans Accessibilité.
+
+À la connexion de l'iPhone, Waze s'ouvre à gauche et HMZ Play (musique, messages, appels) se met à droite.
 
 Le son (musique, appels) reste en Bluetooth entre l'iPhone et la voiture, comme d'habitude.
 
