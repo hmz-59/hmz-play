@@ -229,6 +229,51 @@ object IphoneLink {
 
     fun clearNotifications() { _notifications.value = emptyList() }
 
+    private val _pairingUntil = MutableStateFlow(0L)
+    /** Elapsed-realtime deadline of the pairing mode, 0 when off. */
+    val pairingUntil: StateFlow<Long> = _pairingUntil.asStateFlow()
+    private var savedName: String? = null
+    private const val PAIR_NAME = "HMZ Play"
+
+    /**
+     * Pairing mode: for 2 minutes the head unit shows up as "HMZ Play" instead of the car's
+     * Bluetooth name, so the iPhone lists it as a NEW device (Settings > Bluetooth > Other devices)
+     * and pairs with HMZ Play itself. The original name comes back afterwards.
+     */
+    fun startPairingMode() = h.post {
+        val a = adapter ?: return@post
+        if (savedName == null) savedName = runCatching { a.name }.getOrNull()
+        val ok = runCatching { a.setName(PAIR_NAME) }.getOrDefault(false)
+        note(if (ok) "Mode jumelage : visible sous « $PAIR_NAME » pendant 2 min" else "Impossible de renommer le Bluetooth de l'autoradio")
+        if (!ok) return@post
+        _tabletName.value = PAIR_NAME
+        restartAdvertising()
+        _pairingUntil.value = SystemClock.elapsedRealtime() + 120_000
+        h.removeCallbacks(endPairing)
+        h.postDelayed(endPairing, 120_000)
+    }
+
+    fun stopPairingMode() = h.post { endPairing.run() }
+
+    private val endPairing = Runnable {
+        val a = adapter
+        val n = savedName
+        if (a != null && n != null) {
+            runCatching { a.setName(n) }
+            _tabletName.value = n
+            note("Fin du mode jumelage, nom rétabli : $n")
+        }
+        savedName = null
+        _pairingUntil.value = 0L
+        restartAdvertising()
+    }
+
+    private fun restartAdvertising() {
+        runCatching { if (advertising) advertiser?.stopAdvertising(advCallback) }
+        advertising = false
+        h.postDelayed({ startAdvertising() }, 400)
+    }
+
     fun forgetPhone() = h.post {
         prefs()?.edit()?.remove(KEY_ADDR)?.apply()
         gatt?.let { runCatching { it.disconnect(); it.close() } }

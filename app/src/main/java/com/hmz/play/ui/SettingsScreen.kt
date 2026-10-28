@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.LifecycleResumeEffect
@@ -89,10 +90,23 @@ fun SettingsScreen(onRequestPermissions: () -> Unit) {
             Column(Modifier.weight(1.3f).card().padding(20.dp)) {
                 Text("JUMELER TON IPHONE (une seule fois)", color = C.Sub, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                 Spacer(Modifier.height(10.dp))
-                Step(1, "Sur l'iPhone : Réglages → Bluetooth.")
-                Step(2, "Sous « Autres appareils », touche « $tablet ».")
-                Step(3, "Accepte le jumelage sur l'iPhone et sur la tablette.")
-                Step(4, "Autorise « Afficher les notifications » sur l'iPhone.")
+                val until by IphoneLink.pairingUntil.collectAsStateWithLifecycle()
+                val remaining by produceState(0, until) {
+                    while (true) {
+                        value = ((until - android.os.SystemClock.elapsedRealtime()) / 1000).toInt().coerceAtLeast(0)
+                        if (value == 0) break
+                        kotlinx.coroutines.delay(1000)
+                    }
+                }
+                if (remaining > 0) {
+                    Text("Mode jumelage actif : encore $remaining s", color = C.Green, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                } else {
+                    PillButton("1. Lancer le mode jumelage", C.Blue) { IphoneLink.startPairingMode() }
+                }
+                Spacer(Modifier.height(8.dp))
+                Step(2, "Sur l'iPhone : Réglages → Bluetooth.")
+                Step(3, "Sous « Autres appareils », touche « HMZ Play ».")
+                Step(4, "Accepte le jumelage, puis « Afficher les notifications ».")
                 Spacer(Modifier.height(6.dp))
                 Text(
                     "Ensuite, la connexion se fait toute seule à chaque fois que tu montes dans la voiture.",
