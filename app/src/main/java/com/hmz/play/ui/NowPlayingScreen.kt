@@ -48,9 +48,10 @@ fun NowPlayingScreen() {
 
     BoxWithConstraints(Modifier.fillMaxSize().padding(24.dp)) {
         val narrow = maxWidth < 600.dp
+        val smallArt = minOf(maxHeight * 0.32f, maxWidth * 0.5f)
         if (narrow) {
             Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center) {
-                Artwork(track, minOf(maxHeight * 0.32f, maxWidth * 0.5f), 18.dp)
+                Artwork(track, smallArt, 18.dp)
                 Spacer(Modifier.height(18.dp))
                 TrackDetails(track)
             }
