@@ -75,6 +75,7 @@ object LiveInfo {
         if (started) return
         started = true
         app = ctx.applicationContext
+        _items.value = load(ctx.applicationContext) // last downloaded list: reminders work even without internet
         LiveAlerts.start(ctx.applicationContext, scope)
         scope.launch {
             var n = 0
@@ -93,28 +94,69 @@ object LiveInfo {
     private suspend fun refresh(flights: Boolean) {
         val ctx = app ?: return
         val st = _status.value.toMutableMap()
-        val keep = _items.value.filter { !flights && it.kind == LiveItem.Kind.FLIGHT }.toMutableList()
+        val prev = _items.value
+        val isMatch = { it: LiveItem -> it.kind == LiveItem.Kind.EVENT && it.title.startsWith("⚽") }
+        // Offline (or a source down): keep what was downloaded before, so reminders still fire.
+        val oldTrains = prev.filter { it.kind == LiveItem.Kind.TRAIN }
+        val oldFlights = prev.filter { it.kind == LiveItem.Kind.FLIGHT }
+        val oldEvents = prev.filter { it.kind == LiveItem.Kind.EVENT && !isMatch(it) }
+        val oldMatches = prev.filter(isMatch)
         val out = mutableListOf<LiveItem>()
+        var offline = false
 
         runCatching { trains(ctx) }
             .onSuccess { out += it; st[LiveItem.Kind.TRAIN] = if (sncfKey(ctx).isBlank()) "Ajoute ta clé SNCF dans Réglages" else "" }
-            .onFailure { st[LiveItem.Kind.TRAIN] = "Trains indisponibles (${msg(it)})" }
+            .onFailure { out += oldTrains; offline = offline || isOffline(it); st[LiveItem.Kind.TRAIN] = "Trains : ${msg(it)}, dernières infos gardées" }
         if (flights) {
             runCatching { flights(ctx) }
                 .onSuccess { out += it; st[LiveItem.Kind.FLIGHT] = if (airKey(ctx).isBlank()) "Ajoute ta clé AirLabs dans Réglages" else "" }
-                .onFailure { st[LiveItem.Kind.FLIGHT] = "Vols indisponibles (${msg(it)})" }
-        } else out += keep
+                .onFailure { out += oldFlights; offline = offline || isOffline(it); st[LiveItem.Kind.FLIGHT] = "Vols : ${msg(it)}, dernières infos gardées" }
+        } else out += oldFlights
         runCatching { events() }
             .onSuccess { out += it; st[LiveItem.Kind.EVENT] = "" }
-            .onFailure { st[LiveItem.Kind.EVENT] = "Événements indisponibles (${msg(it)})" }
+            .onFailure { out += oldEvents; offline = offline || isOffline(it); st[LiveItem.Kind.EVENT] = "Événements : ${msg(it)}, dernières infos gardées" }
         runCatching { losc() }
             .onSuccess { out += it }
-            .onFailure { st[LiveItem.Kind.EVENT] = (st[LiveItem.Kind.EVENT].orEmpty() + " Matchs LOSC indisponibles (${msg(it)})").trim() }
+            .onFailure { out += oldMatches }
 
         val now = LocalDateTime.now().minusMinutes(15)
-        _items.value = out.filter { it.time.isAfter(now) }.sortedBy { it.time }
+        val list = out.filter { it.time.isAfter(now) }.distinctBy { "${it.kind}|${it.title}|${it.time}" }.sortedBy { it.time }
+        _items.value = list
         _status.value = st
+        save(ctx, list)
     }
+
+    private fun isOffline(t: Throwable) = t is java.net.UnknownHostException || t is java.net.ConnectException || t is java.net.SocketTimeoutException
+
+    // ---------------------------------------------------------------- kept on the head unit (works offline)
+
+    private fun file(ctx: Context) = java.io.File(ctx.filesDir, "affluence.json")
+
+    private fun save(ctx: Context, list: List<LiveItem>) = runCatching {
+        val arr = org.json.JSONArray()
+        list.forEach {
+            arr.put(JSONObject().put("k", it.kind.name).put("t", it.time.toString()).put("ti", it.title).put("p", it.place)
+                .put("d", it.detail).put("b", it.big).put("la", it.lat ?: Double.NaN).put("lo", it.lon ?: Double.NaN)
+                .put("e", it.end?.toString() ?: ""))
+        }
+        file(ctx).writeText(arr.toString())
+    }
+
+    private fun load(ctx: Context): List<LiveItem> = runCatching {
+        val arr = org.json.JSONArray(file(ctx).readText())
+        val now = LocalDateTime.now().minusMinutes(15)
+        (0 until arr.length()).mapNotNull { i ->
+            val o = arr.getJSONObject(i)
+            runCatching {
+                LiveItem(
+                    LiveItem.Kind.valueOf(o.getString("k")), LocalDateTime.parse(o.getString("t")), o.getString("ti"),
+                    o.getString("p"), o.optString("d"), o.optBoolean("b"),
+                    o.optDouble("la").takeIf { !it.isNaN() }, o.optDouble("lo").takeIf { !it.isNaN() },
+                    o.optString("e").takeIf { it.isNotBlank() }?.let { LocalDateTime.parse(it) },
+                )
+            }.getOrNull()
+        }.filter { it.time.isAfter(now) }
+    }.getOrDefault(emptyList())
 
     /** Short reason without any URL (it could contain an API key). */
     private fun msg(t: Throwable) = when (t) {
@@ -145,7 +187,7 @@ object LiveInfo {
         val fmt = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss")
         val out = mutableListOf<LiveItem>()
         for ((id, name) in STATIONS) {
-            val url = "https://api.sncf.com/v1/coverage/sncf/stop_areas/$id/arrivals?count=25&data_freshness=realtime&duration=10800"
+            val url = "https://api.sncf.com/v1/coverage/sncf/stop_areas/$id/arrivals?count=100&data_freshness=realtime&duration=43200"
             val auth = "Basic " + android.util.Base64.encodeToString("$key:".toByteArray(), android.util.Base64.NO_WRAP)
             val arr = JSONObject(get(url, auth)).optJSONArray("arrivals") ?: continue
             for (i in 0 until arr.length()) {
