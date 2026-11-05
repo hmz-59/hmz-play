@@ -28,6 +28,7 @@ data class LiveItem(
     val big: Boolean = false,
     val lat: Double? = null,
     val lon: Double? = null,
+    val end: LocalDateTime? = null,
 ) { enum class Kind { TRAIN, FLIGHT, EVENT } }
 
 /**
@@ -66,10 +67,13 @@ object LiveInfo {
         if (started) return
         started = true
         app = ctx.applicationContext
+        LiveAlerts.start(ctx.applicationContext, scope)
         scope.launch {
             var n = 0
             while (isActive) {
-                refresh(flights = n % 3 == 0) // flights every 45 min to stay in AirLabs' free quota
+                // AirLabs free plan = 1000 requests/month: flights once an hour, never at night (~540/month).
+                val h = LocalDateTime.now().hour
+                refresh(flights = n % 4 == 0 && h in 6..23)
                 n++
                 delay(15 * 60_000L)
             }
@@ -198,7 +202,7 @@ object LiveInfo {
                 LiveItem.Kind.EVENT, if (begin.toLocalDate().isBefore(today)) end ?: begin else begin,
                 e.optString("title_fr").ifBlank { "Événement" }, place,
                 end?.let { "jusqu'à %02d:%02d".format(it.hour, it.minute) } ?: "", big,
-                c?.optDouble("lat"), c?.optDouble("lon"),
+                c?.optDouble("lat"), c?.optDouble("lon"), end,
             )
         }
     }

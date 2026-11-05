@@ -146,6 +146,7 @@ fun CarRoot(locationGranted: Boolean, refreshKey: Int, onRequestPermissions: () 
         EndOfDaySheet()
         PickupSignEditor()
         PickupSign()
+        LiveAlertOverlay()
         CallOverlay()
     }
 }

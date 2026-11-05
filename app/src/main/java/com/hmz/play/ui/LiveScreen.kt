@@ -129,7 +129,7 @@ fun LiveKeysCard() {
     Column(Modifier.fillMaxWidth().card().padding(20.dp)) {
         Text("Affluence : trains, vols, événements", color = C.Text, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
         Text(
-            "Les événements de la MEL marchent sans rien faire. Pour les trains et les avions, il faut une clé gratuite (inscription par e-mail) : SNCF sur numerique.sncf.com (API SNCF) et AirLabs sur airlabs.co. Colle-les ici, elles restent sur l'autoradio.",
+            "Les événements de la MEL marchent sans clé. Trains : clé gratuite sur numerique.sncf.com/startup/api (5 000 requêtes/jour, HMZ Play en utilise ~200). Avions : clé gratuite sur airlabs.co, offre Free sans carte bancaire (1 000/mois, HMZ Play en utilise ~540). Les clés restent sur l'autoradio.",
             color = C.Sub, fontSize = 15.sp,
         )
         Spacer(Modifier.height(10.dp))
@@ -140,6 +140,8 @@ fun LiveKeysCard() {
         Row(verticalAlignment = Alignment.CenterVertically) {
             PillButton(if (saved) "Enregistré ✓" else "Enregistrer", C.Blue) { LiveInfo.setKeys(ctx, sncf, air); saved = true }
         }
+        Spacer(Modifier.height(16.dp))
+        LiveAlertSettings()
     }
 }
 
