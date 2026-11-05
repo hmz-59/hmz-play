@@ -67,7 +67,7 @@
             android:launchMode="singleTask"
             android:taskAffinity="com.hmz.play.side"
             android:resizeableActivity="true"
-            android:screenOrientation="unspecified"
+            android:screenOrientation="sensorLandscape"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|uiMode"
             android:windowSoftInputMode="adjustNothing" />
 
