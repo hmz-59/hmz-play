@@ -99,6 +99,9 @@ object LiveInfo {
         runCatching { events() }
             .onSuccess { out += it; st[LiveItem.Kind.EVENT] = "" }
             .onFailure { st[LiveItem.Kind.EVENT] = "Événements indisponibles (${it.message})" }
+        runCatching { losc() }
+            .onSuccess { out += it }
+            .onFailure { st[LiveItem.Kind.EVENT] = (st[LiveItem.Kind.EVENT].orEmpty() + " Matchs LOSC indisponibles (${it.message})").trim() }
 
         val now = LocalDateTime.now().minusMinutes(15)
         _items.value = out.filter { it.time.isAfter(now) }.sortedBy { it.time }
@@ -203,6 +206,30 @@ object LiveInfo {
                 e.optString("title_fr").ifBlank { "Événement" }, place,
                 end?.let { "jusqu'à %02d:%02d".format(it.hour, it.minute) } ?: "", big,
                 c?.optDouble("lat"), c?.optDouble("lon"), end,
+            )
+        }
+    }
+
+    /** LOSC home matches at the stadium (TheSportsDB public key, no sign-up; free key = home matches only). */
+    private fun losc(): List<LiveItem> {
+        val j = JSONObject(get("https://www.thesportsdb.com/api/v1/json/123/eventsnext.php?id=133711"))
+        val arr = j.optJSONArray("events") ?: return emptyList()
+        val zone = ZoneId.systemDefault()
+        val limit = LocalDateTime.now().plusDays(2)
+        return (0 until arr.length()).mapNotNull { i ->
+            val e = arr.getJSONObject(i)
+            val ts = e.optString("strTimestamp").ifBlank { e.optString("dateEvent") + "T" + e.optString("strTime").ifBlank { "20:00:00" } }
+            val utc = runCatching { java.time.OffsetDateTime.parse(ts) }
+                .recoverCatching { java.time.LocalDateTime.parse(ts.take(19)).atOffset(java.time.ZoneOffset.UTC) }
+                .getOrNull() ?: return@mapNotNull null
+            val begin = utc.atZoneSameInstant(zone).toLocalDateTime()
+            if (begin.isAfter(limit)) return@mapNotNull null
+            val end = begin.plusMinutes(115)
+            LiveItem(
+                LiveItem.Kind.EVENT, begin,
+                "⚽ " + e.optString("strEvent").ifBlank { "Match du LOSC" } + e.optString("strLeague").let { if (it.isBlank()) "" else " ($it)" },
+                e.optString("strVenue").ifBlank { "Stade Pierre-Mauroy" } + ", Villeneuve-d'Ascq",
+                "fin vers %02d:%02d".format(end.hour, end.minute), true, 50.6119, 3.1305, end,
             )
         }
     }
