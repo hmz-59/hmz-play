@@ -33,6 +33,10 @@ object Drive {
     @Volatile var lat = 50.63
     @Volatile var lon = 3.06
 
+    /** Elapsed-realtime of the last moment the car was moving (for the parked screen). */
+    private val _lastMoving = MutableStateFlow(android.os.SystemClock.elapsedRealtime())
+    val lastMoving: StateFlow<Long> = _lastMoving.asStateFlow()
+
     private var started = false
     private var last: Location? = null
     private var lastSave = 0L
@@ -90,13 +94,31 @@ object Drive {
         }
         last = loc
         _state.value = DriveDay(speed.toInt().coerceAtLeast(0), km, sec, true)
+        if (speed > 5f) _lastMoving.value = android.os.SystemClock.elapsedRealtime()
+        app?.let { SpeedVolume.onSpeed(it, speed.toInt()) }
         val now = System.currentTimeMillis()
         if (now - lastSave > 30_000) {
             lastSave = now
+            app?.getSharedPreferences("history", Context.MODE_PRIVATE)?.edit()
+                ?.putString(today, "%.2f;%d".format(java.util.Locale.US, km, sec))?.apply()
             p?.edit()?.putFloat("km", km.toFloat())?.putLong("sec", sec)
                 ?.putFloat("lat", lat.toFloat())?.putFloat("lon", lon.toFloat())?.apply()
         }
     }
+
+    /** Last days (newest first): date, km, seconds of driving. */
+    fun history(ctx: Context, days: Int = 14): List<Triple<LocalDate, Double, Long>> {
+        val h = ctx.getSharedPreferences("history", Context.MODE_PRIVATE)
+        return (0 until days).mapNotNull { i ->
+            val d = LocalDate.now().minusDays(i.toLong())
+            val v = h.getString(d.toString(), null) ?: return@mapNotNull null
+            val (km, sec) = v.split(';').let { (it[0].toDoubleOrNull() ?: 0.0) to (it.getOrNull(1)?.toLongOrNull() ?: 0L) }
+            if (km < 0.1) null else Triple(d, km, sec)
+        }
+    }
+
+    fun speedAlert(ctx: Context) = ctx.getSharedPreferences("ui", Context.MODE_PRIVATE).getInt("speed_alert", 0)
+    fun setSpeedAlert(ctx: Context, kmh: Int) = ctx.getSharedPreferences("ui", Context.MODE_PRIVATE).edit().putInt("speed_alert", kmh).apply()
 
     /** True between sunrise and sunset at the current position (NOAA approximation). */
     fun isDaytime(now: Calendar = Calendar.getInstance()): Boolean {

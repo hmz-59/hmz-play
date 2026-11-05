@@ -136,6 +136,7 @@ fun CarRoot(locationGranted: Boolean, refreshKey: Int, onRequestPermissions: () 
         NotificationBanner(compact = compact, onOpen = { screen = Screen.NOTIFS })
         DestinationSheet()
         UpdateBanner()
+        ParkedOverlay()
         CallOverlay()
     }
 }
@@ -187,6 +188,8 @@ private fun CompactLayout(
         ) {
             Clock()
             Spacer(Modifier.width(10.dp))
+            WeatherLabel()
+            Spacer(Modifier.width(10.dp))
             val carPhone by com.hmz.play.ble.CarBluetooth.connected.collectAsStateWithLifecycle()
             val connected = status == LinkStatus.CONNECTED || carPhone != null
             Icon(
@@ -231,8 +234,10 @@ private fun CompactHome(onNavigate: (Screen) -> Unit) {
         ) {
             Icon(Icons.Filled.Search, null, tint = C.Sub, modifier = Modifier.size(20.dp))
             Spacer(Modifier.width(10.dp))
-            Text("Où allons-nous ?", color = C.Text, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+            Text("Où allons-nous ?", color = C.Text, fontSize = 16.sp, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f))
+            VoiceButton(36.dp)
         }
+        FavoriteChips()
         DriveWidget(Modifier.fillMaxWidth())
         NowPlayingCard(Modifier.weight(1f).fillMaxWidth()) { onNavigate(Screen.MUSIC) }
         InfoCard(Modifier.weight(0.8f).fillMaxWidth(), onNavigate)

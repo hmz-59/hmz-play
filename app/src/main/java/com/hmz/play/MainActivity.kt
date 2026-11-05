@@ -35,6 +35,8 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        com.hmz.play.data.CrashLog.install(this)
+        com.hmz.play.data.Backup.restoreIfFresh(this)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         hideSystemBars()
@@ -85,6 +87,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onStop() {
         super.onStop()
+        com.hmz.play.data.Backup.save(this)
         Shell.hmzVisible = false
         SplitService.instance?.refresh()
     }
@@ -120,6 +123,7 @@ class MainActivity : ComponentActivity() {
         add(Manifest.permission.ACCESS_FINE_LOCATION)
         add(Manifest.permission.ACCESS_COARSE_LOCATION)
         if (Build.VERSION.SDK_INT <= 32) add(Manifest.permission.READ_EXTERNAL_STORAGE) // find the downloaded Waze file
+        if (Build.VERSION.SDK_INT <= 28) add(Manifest.permission.WRITE_EXTERNAL_STORAGE) // settings backup
         add(Manifest.permission.RECEIVE_SMS) // SMS/iMessage relayed by the iPhone over car Bluetooth (MAP)
         if (Build.VERSION.SDK_INT >= 33) add(Manifest.permission.POST_NOTIFICATIONS)
     }
@@ -134,6 +138,7 @@ class MainActivity : ComponentActivity() {
         IphoneLink.start(this)
         com.hmz.play.ble.CarBluetooth.start(this)
         if (granted(Manifest.permission.ACCESS_FINE_LOCATION)) com.hmz.play.data.Drive.start(this)
+        com.hmz.play.data.WeatherSource.start()
     }
 
     /** Steering-wheel / head-unit media keys while HMZ Play is on screen. */

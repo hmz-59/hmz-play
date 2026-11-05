@@ -157,18 +157,24 @@ private fun MapCard(locationGranted: Boolean, modifier: Modifier) {
                 .clickable(remember { MutableInteractionSource() }, null) { Split.openNavigation(ctx) },
         )
         Row(
-            Modifier
-                .align(Alignment.BottomStart)
-                .padding(14.dp)
-                .clip(RoundedCornerShape(50))
-                .background(C.Panel.copy(alpha = 0.94f))
-                .tap { Ui.searchOpen = true }
-                .padding(horizontal = 18.dp, vertical = 13.dp),
+            Modifier.align(Alignment.BottomStart).padding(14.dp),
             verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Icon(Icons.Filled.Search, null, tint = C.Sub, modifier = Modifier.size(22.dp))
-            Spacer(Modifier.width(10.dp))
-            Text("Où allons-nous ?", color = C.Text, fontSize = 17.sp, fontWeight = FontWeight.Medium)
+        Row(
+                Modifier
+                                    .clip(RoundedCornerShape(50))
+                    .background(C.Panel.copy(alpha = 0.94f))
+                    .tap { Ui.searchOpen = true }
+                    .padding(horizontal = 18.dp, vertical = 13.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(Icons.Filled.Search, null, tint = C.Sub, modifier = Modifier.size(22.dp))
+                Spacer(Modifier.width(10.dp))
+                Text("Où allons-nous ?", color = C.Text, fontSize = 17.sp, fontWeight = FontWeight.Medium)
+            }
+            VoiceButton(46.dp)
+            FavoriteChips()
         }
     }
 }

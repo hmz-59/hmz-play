@@ -33,9 +33,12 @@ fun DriveWidget(modifier: Modifier = Modifier) {
     val d by Drive.state.collectAsStateWithLifecycle()
     val g by NavInfo.guidance.collectAsStateWithLifecycle()
     val speed by animateIntAsState(d.speedKmh, tween(600), label = "speed")
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    val limit = androidx.compose.runtime.remember { Drive.speedAlert(ctx) }
+    val over = limit > 0 && d.speedKmh > limit
     Column(modifier.card().padding(horizontal = 18.dp, vertical = 14.dp)) {
         Row(verticalAlignment = Alignment.Bottom) {
-            Text(if (d.hasFix) "$speed" else "–", color = C.Text, fontSize = 40.sp, fontWeight = FontWeight.Bold)
+            Text(if (d.hasFix) "$speed" else "–", color = if (over) C.Orange else C.Text, fontSize = 40.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.width(6.dp))
             Text("km/h", color = C.Sub, fontSize = 15.sp, modifier = Modifier.padding(bottom = 8.dp))
             Spacer(Modifier.weight(1f))

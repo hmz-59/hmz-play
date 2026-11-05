@@ -68,6 +68,7 @@ fun Sidebar(screen: Screen, onNavigate: (Screen) -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Clock()
+        WeatherLabel(13)
         Spacer(Modifier.height(6.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             val carPhone by com.hmz.play.ble.CarBluetooth.connected.collectAsStateWithLifecycle()

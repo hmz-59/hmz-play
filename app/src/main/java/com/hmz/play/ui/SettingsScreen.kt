@@ -193,11 +193,65 @@ fun SettingsScreen(onRequestPermissions: () -> Unit) {
         }
 
         Spacer(Modifier.height(14.dp))
+        // Driving: volume by speed, speed alert, history
+        var speedVol by remember { mutableStateOf(com.hmz.play.data.SpeedVolume.enabled(ctx)) }
+        var alert by remember { mutableStateOf(com.hmz.play.data.Drive.speedAlert(ctx)) }
+        val history = remember { com.hmz.play.data.Drive.history(ctx) }
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+            Column(Modifier.weight(1f).card().padding(20.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text("Volume selon la vitesse", color = C.Text, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                        Text("Monte un peu au-dessus de 70 et 110 km/h.", color = C.Sub, fontSize = 15.sp)
+                    }
+                    Switch(
+                        checked = speedVol,
+                        onCheckedChange = { speedVol = it; com.hmz.play.data.SpeedVolume.setEnabled(ctx, it) },
+                        colors = SwitchDefaults.colors(checkedTrackColor = C.Green, checkedThumbColor = Color.White),
+                    )
+                }
+                Spacer(Modifier.height(14.dp))
+                Text("Rappel de vitesse (compteur en orange)", color = C.Text, fontSize = 16.sp)
+                Spacer(Modifier.height(8.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf(0 to "Off", 90 to "90", 110 to "110", 130 to "130").forEach { (v, label) ->
+                        PillButton(label, if (alert == v) C.Blue else C.Panel2) {
+                            alert = v
+                            com.hmz.play.data.Drive.setSpeedAlert(ctx, v)
+                        }
+                    }
+                }
+            }
+            Column(Modifier.weight(1f).card().padding(20.dp)) {
+                Text("Historique de conduite", color = C.Text, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                Spacer(Modifier.height(8.dp))
+                if (history.isEmpty()) Text("Les trajets apparaîtront ici.", color = C.Sub, fontSize = 15.sp)
+                val df = java.time.format.DateTimeFormatter.ofPattern("EEE d MMM", java.util.Locale.FRANCE)
+                history.take(7).forEach { (day, km, sec) ->
+                    Row(Modifier.fillMaxWidth().padding(vertical = 3.dp)) {
+                        Text(day.format(df), color = C.Text, fontSize = 15.sp, modifier = Modifier.weight(1f))
+                        Text("%.1f km".format(km), color = C.Text, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                        Spacer(Modifier.width(14.dp))
+                        Text("${sec / 3600} h ${"%02d".format(sec / 60 % 60)}", color = C.Sub, fontSize = 15.sp)
+                    }
+                }
+            }
+        }
+
+        Spacer(Modifier.height(14.dp))
         // Diagnostic
         val log by IphoneLink.log.collectAsStateWithLifecycle()
         Column(Modifier.fillMaxWidth().card().padding(20.dp)) {
             Text("DIAGNOSTIC", color = C.Sub, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
             Spacer(Modifier.height(8.dp))
+            val crash = remember { com.hmz.play.data.CrashLog.last(ctx) }
+            if (crash != null) {
+                Text("Dernier plantage (envoie-moi une photo) :", color = C.Red, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                Text(crash.lines().take(8).joinToString("\n"), color = C.Text, fontSize = 12.sp, fontFamily = FontFamily.Monospace)
+                Spacer(Modifier.height(6.dp))
+                PillButton("Effacer", C.Panel2) { com.hmz.play.data.CrashLog.clear(ctx) }
+                Spacer(Modifier.height(10.dp))
+            }
             if (log.isEmpty()) Text("Aucun événement pour l'instant.", color = C.Sub, fontSize = 14.sp)
             log.take(16).forEach { line ->
                 Text(line, color = C.Text.copy(alpha = 0.85f), fontSize = 14.sp, fontFamily = FontFamily.Monospace)
