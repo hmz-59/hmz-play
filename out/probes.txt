@@ -1,0 +1,137 @@
+=== OpenAgenda MEL (events)
+total=85 err=
+2026-11-05T07:30:00+00:00 → 2026-11-05T16:00:00+00:00 | Campus Cyber Summit 2026 : l’IA et la cybersécurité au cœur des enjeux des entreprises | 5 novembre | EuraTechnologies, Lille | {"lon":3.020264,"lat":50.633159}
+2026-11-05T08:00:00+00:00 → 2026-11-05T10:00:00+00:00 | Informations sur la VAE | Agence LA MADELEINE, La Madeleine | {"lon":3.07213,"lat":50.644913}
+2026-11-05T08:30:00+00:00 → 2026-11-05T09:15:00+00:00 | Entreprendre, c'est possible ! Venez rencontrer L'ADIE | Agence HALLUIN, Halluin | {"lon":3.125231,"lat":50.774136}
+2026-11-05T08:30:00+00:00 → 2026-11-05T13:30:00+00:00 | FORUM DE L'EMPLOI ORCHIES SENIORS | Orchies - Agence DOUAI, Orchies | {"lon":3.240832,"lat":50.47049}
+2026-11-05T08:30:00+00:00 → 2027-01-07T10:30:00+00:00 | Ateliers d’éveil corporel parents-enfants | Crèche Nougatine, Villeneuve-d'Ascq | {"lon":3.135665,"lat":50.645538}
+2026-11-05T08:30:00+00:00 → 2026-11-05T10:00:00+00:00 | Préparateur de commandes AVEC CACES PROLAIDIS LESQUIN | Lesquin - Agence VILLENEUVE D'ASCQ, Lesquin | {"lon":3.114203,"lat":50.582088}
+2026-11-05T08:30:00+00:00 → 2026-11-05T10:30:00+00:00 | Recrutement spécial femmes - Groupe SINEO | Pérenchies - Agence LOMME, Pérenchies | {"lon":2.967844,"lat":50.661358}
+2026-11-05T08:30:00+00:00 → 2026-11-05T10:00:00+00:00 | RECRUTEMENT MRS OPERATEUR DE PRODUCTION EN INDUSTRIE TEXTILE PEIGNAGE DUMORTIER | Tourcoing - Agence La Halle Lille Métropole, Tourcoing | {"lon":3.187505,"lat":50.734867}
+2026-11-05T08:30:00+00:00 → 2026-11-05T11:30:00+00:00 | Recrutement d' assistant(e) ménager(e) à domicile avec Joker avec formation préalable /poei | Agence LILLE VAUCANSON, Lille | {"lon":3.094097,"lat":50.629536}
+2026-11-05T08:30:00+00:00 → 2026-11-05T10:00:00+00:00 | RECRUTEMENT MRS OPERATEUR DE PRODUCTION EN INDUSTRIE TEXTILE PEIGNAGE DUMORTIER | Tourcoing - Agence La Halle Lille Métropole, Tourcoing | {"lon":3.172089,"lat":50.71777}
+2026-11-05T09:00:00+00:00 → 2026-11-05T10:30:00+00:00 | V.I.B. Very Important Baby | Tourcoing/Médiathèque André Malraux, Tourcoing | {"lon":3.15968,"lat":50.716504}
+2026-11-05T09:00:00+00:00 → 2026-11-05T11:00:00+00:00 | Mon Passeport Digital : Maîtrisez votre nouveau parcours vers l'emploi ! | Agence HEM, Hem | {"lon":3.190415,"lat":50.663506}
+2026-11-05T09:00:00+00:00 → 2026-11-05T11:00:00+00:00 | Participez à la réunion d'information de présentation de la formation : Opérateur Technique en Pharmacie et Cosmétique Industrielle | Loos - Agence LILLE GRAND SUD, Loos | {"lon":3.039001,"lat":50.603142}
+2026-11-05T09:15:00+00:00 → 2026-11-05T10:00:00+00:00 | Entreprendre, c'est possible ! Venez rencontrer L'ADIE | Agence HALLUIN, Halluin | {"lon":3.125231,"lat":50.774136}
+2026-11-05T09:30:00+00:00 → 2026-11-05T15:00:00+00:00 | Journée Porte Ouverte HAUTE BORNE / Conseiller clientèle à distance - VELSIA | Villeneuve-d'Ascq - Agence VILLENEUVE D'ASCQ, Villeneuve-d'Ascq | {"lon":3.145824,"lat":50.603462}
+2026-11-05T10:00:00+00:00 → 2026-11-05T11:00:00+00:00 | Recrutement / POEC Technicien de maintenance industrielle H/F | Marcq-en-Barœul - Agence HALLUIN, Marcq-en-Barœul | {"lon":3.113616,"lat":50.655891}
+2026-11-05T10:00:00+00:00 → 2026-11-05T10:45:00+00:00 | Entreprendre, c'est possible ! Venez rencontrer L'ADIE | Agence HALLUIN, Halluin | {"lon":3.125231,"lat":50.774136}
+2026-11-05T10:00:00+00:00 → 2026-11-05T11:00:00+00:00 | Recrutement / POEC Technicien de maintenance industrielle H/F | Marcq-en-Barœul - Agence HALLUIN, Marcq-en-Barœul | {"lon":3.113616,"lat":50.655891}
+2026-11-05T10:45:00+00:00 → 2026-11-05T11:30:00+00:00 | Entreprendre, c'est possible ! Venez rencontrer L'ADIE | Agence HALLUIN, Halluin | {"lon":3.125231,"lat":50.774136}
+2026-11-05T11:00:00+00:00 → 2026-11-05T15:30:00+00:00 | Forum de l'Emploi destiné aux cadres et agents de maîtrise | Wambrechies - 59-ML MNO-SIEGE, Wambrechies | {"lon":3.050148,"lat":50.686626}
+2026-11-05T11:30:00+00:00 → 2026-11-05T12:14:00+00:00 | rendez-vous inscription en ligne ou la mise à jour du profil de compétences | Agence LA MADELEINE, La Madeleine | {"lon":3.07213,"lat":50.644913}
+2026-11-05T12:15:00+00:00 → 2026-11-05T13:00:00+00:00 | rendez-vous inscription en ligne ou la mise à jour du profil de compétences | Agence LA MADELEINE, La Madeleine | {"lon":3.07213,"lat":50.644913}
+2026-11-05T12:30:00+00:00 → 2026-11-05T18:00:00+00:00 | Bien vieillir : l’ESS au cœur des solutions | Lancement du Mois de l’ESS — 5 novembre | Préfecture du nord, Lille, Lille | {"lon":3.060322,"lat":50.633676}
+2026-11-05T12:30:00+00:00 → 2026-11-05T16:00:00+00:00 | Fabrik'Ton Avenir - Osez l'industrie 4.0 ! | Comines - Agence HALLUIN, Comines | {"lon":3.009718,"lat":50.763828}
+2026-11-05T12:30:00+00:00 → 2026-11-05T16:00:00+00:00 | Fabrik'Ton Avenir - Osez l'industrie 4.0 ! | Comines - Agence HALLUIN, Comines | {"lon":3.006821,"lat":50.765316}
+2026-11-05T13:00:00+00:00 → 2026-11-05T14:00:00+00:00 | France travail mode d'emploi ! | Agence WATTRELOS, Wattrelos | {"lon":3.232369,"lat":50.691586}
+2026-11-05T13:00:00+00:00 → 2026-11-05T13:45:00+00:00 | rendez-vous inscription en ligne ou la mise à jour du profil de compétences | Agence LA MADELEINE, La Madeleine | {"lon":3.07213,"lat":50.644913}
+2026-11-05T13:00:00+00:00 → 2026-11-05T14:30:00+00:00 | Consultation des opportunités DUODAY 2026 (Demandeur d'emploi BOE - agence de Carvin) | Agence CARVIN, Carvin | {"lon":2.964213,"lat":50.494129}
+2026-11-05T13:00:00+00:00 → 2026-11-05T14:00:00+00:00 | Réunion d'information sur l'accompagnement NQT | Agence TOURCOING, Tourcoing | {"lon":3.172089,"lat":50.71777}
+2026-11-05T13:00:00+00:00 → 2026-11-05T15:00:00+00:00 | RENCONTRE RFCI BESOIN RECRUTEMENT COMMERCE ALTERNANCE | Agence LILLE GRAND SUD, Lille | {"lon":3.039066,"lat":50.61488}
+2026-11-05T13:00:00+00:00 → 2026-11-05T15:00:00+00:00 | Découvrez les opportunités d'emploi en agroalimentaire : Lesage & Fils recrute ! | Agence SECLIN, Seclin | {"lon":3.042045,"lat":50.54995}
+2026-11-05T13:30:00+00:00 → 2026-11-05T15:30:00+00:00 | "À quoi sert l’histoire de la philosophie ?" | Médiathèque Jean-Lévy - Lille, Lille | {"lon":3.066405,"lat":50.632523}
+2026-11-05T13:45:00+00:00 → 2026-11-05T14:30:00+00:00 | Bénéficiez d'un bilan prévention santé dans votre agence France Travail - Réservé aux habitants d'Haubourdin, d'Hallennes lez Haubourdin et | Agence HAUBOURDIN, Haubourdin | {"lon":2.98596,"lat":50.610275}
+2026-11-05T14:00:00+00:00 → 2026-11-05T16:30:00+00:00 | Centre Européen de Formation - Télévente - Formation préalable au recrutement (POEI) | Villeneuve-d'Ascq - Agence VILLENEUVE D'ASCQ, Villeneuve-d'Ascq | {"lon":3.136453,"lat":50.616356}
+2026-11-05T15:00:00+00:00 → 2026-11-19T16:00:00+00:00 | L'hôtel de ville et ses maires | Hôtel de Ville, Lille | {"lon":3.070932,"lat":50.631017}
+2026-11-05T15:45:00+00:00 → 2026-11-05T17:45:00+00:00 | "Le vrai du beau. Regards sur la peinture" | Médiathèque Jean-Lévy - Lille, Lille | {"lon":3.066405,"lat":50.632523}
+2026-11-05T16:00:00+00:00 → 2026-11-05T21:00:00+00:00 | Carte blanche à Lolla Wesh & Brigitte Pintade | Le Tripostal, Lille | {"lon":3.074244,"lat":50.636554}
+2026-11-05T16:30:00+00:00 → 2026-11-05T18:30:00+00:00 | Bilan 2026 et perspectives 2027 | La Maison de l'Habitat Durable, Lille | {"lon":3.051893,"lat":50.622961}
+2026-11-05T17:00:00+00:00 → 2026-11-05T21:00:00+00:00 | Roue libre | Tiers-lieu des évidences, Bachy | {"lon":3.261191,"lat":50.546034}
+2026-11-05T17:15:00+00:00 → 2026-11-05T18:45:00+00:00 | Rencontre avec Réginald Gaillard, poète, éditeur. | Médiathèque de Saint-Maurice Pellevoisin, Lille | {"lon":3.08604,"lat":50.648025}
+2026-11-05T17:30:00+00:00 → 2026-11-05T19:00:00+00:00 | Apéro des Licornes : rencontrez les acteurs de la transition écologique et solidaire | 5 novembre | Quai des Transitions, Lomme | {"lon":3.012452,"lat":50.644109}
+2026-11-05T17:30:00+00:00 → 2026-12-19T17:00:00+00:00 | Faire Collection | Destin Sensible, Mons-en-Barœul | {"lon":3.107725,"lat":50.641896}
+2026-11-05T18:00:00+00:00 → 2026-11-05T20:00:00+00:00 | "Rakky Nouha. La musique et les miettes" | Médiathèque Jean-Lévy - Lille, Lille | {"lon":3.066405,"lat":50.632523}
+2026-11-05T18:00:00+00:00 → 2026-11-05T19:00:00+00:00 | Champ de mars (Lecture) - Compagnie ZONE -poème- | Gare Saint Sauveur, Lille | {"lon":3.069793,"lat":50.627319}
+2026-11-05T19:00:00+00:00 → 2026-11-05T23:30:00+00:00 | Shii Foo Miix | Le Bistrot de St So, Lille | {"lon":3.069793,"lat":50.627319}
+2026-11-05T19:00:00+00:00 → 2026-11-05T22:55:00+00:00 | release party : Tijo | FLOW - Centre Eurorégional des Cultures Urbaines, Lille | {"lon":3.067621,"lat":50.622521}
+2026-11-05T19:00:00+00:00 → 2026-11-27T21:00:00+00:00 | Le programme de courts du mois : Mauvais rêves | L'hybride, Lille | {"lon":3.065996,"lat":50.626042}
+2026-11-05T19:00:00+00:00 → 2027-03-25T21:00:00+00:00 | André Manoukian | Théâtre Sébastopol, Lille | {"lon":3.057376,"lat":50.629207}
+2026-11-05T19:00:00+00:00 → 2026-11-05T21:00:00+00:00 | FFF | Le Splendid, Lille | {"lon":3.091107,"lat":50.622993}
+2026-11-05T19:00:00+00:00 → 2026-11-05T22:00:00+00:00 | I Muvrini | Le Zéphyr, Hem | {"lon":3.189881,"lat":50.652218}
+2026-11-06T08:00:00+00:00 → 2026-11-06T09:00:00+00:00 | Semaine de l'agroalimentaire - Découverte des métiers chez McCain préparation pour les femmes et les jeunes | Harnes - Agence LENS LALOUX, Harnes | {"lon":2.93279,"lat":50.465549}
+2026-11-06T08:00:00+00:00 → 2026-11-06T15:00:00+00:00 | Alimentation pour tous : démocratie alimentaire, politiques publiques et insertion | 6 novembre | Espace culture, Villeneuve-d'Ascq | {"lon":3.142782,"lat":50.606842}
+2026-11-06T08:00:00+00:00 → 2026-11-06T09:00:00+00:00 | Semaine de l'agroalimentaire - Découverte des métiers chez McCain préparation pour les femmes et les jeunes | Harnes - Agence LENS LALOUX, Harnes | {"lon":2.881064,"lat":50.445045}
+2026-11-06T08:00:00+00:00 → 2026-11-06T10:00:00+00:00 | Dispositif régional S'engager vers l'emploi : Accompagnement et Formation OMEP Wattrelos | Agence WATTRELOS, Wattrelos | {"lon":3.232369,"lat":50.691586}
+2026-11-06T08:00:00+00:00 → 2026-11-06T10:00:00+00:00 | Rencontrez Sefar Fyltis et explorez ses opportunités professionnelles ! | Billy-Berclau - Agence NOEUX-LES-MINES, Billy-Berclau | {"lon":2.86943,"lat":50.522945}
+2026-11-06T09:00:00+00:00 → 2026-11-06T11:00:00+00:00 | Challenge Forindustrie : De la Découverte des métiers de l'industrie à l'Emploi ! | Agence ROUBAIX LES PRES, Roubaix | {"lon":3.193321,"lat":50.684917}
+2026-11-06T09:00:00+00:00 → 2026-11-06T11:00:00+00:00 | Challenge Forindustrie : De la Découverte des métiers de l'industrie à l'Emploi ! | Agence ROUBAIX LES PRES, Roubaix | {"lon":3.193321,"lat":50.684917}
+2026-11-06T09:00:00+00:00 → 2026-11-08T20:00:00+00:00 | Festival des Écrivaines et Écrivains Associés du Théâtre – E.A.T | Théâtre de l'Aventure, Hem | {"lon":3.189176,"lat":50.663546}
+2026-11-06T09:00:00+00:00 → 2026-11-06T11:00:00+00:00 | Présentation de L'Art d'Accéder à l'Emploi: " Improviser pour Réussir " | Agence TOURCOING, Tourcoing | {"lon":3.172089,"lat":50.71777}
+=== LOSC (TheSportsDB)
+{"events":[{"idEvent":"2489545","idAPIfootball":"1552816","strTimestamp":"2026-11-08T14:00:00","strEvent":"Rennes vs Lille","strEventAlternate":"Lille @ Rennes","strFilename":"French Ligue 1 2026-11-08 Rennes vs Lille","strSport":"Soccer","idLeague":"4334","strLeague":"French Ligue 1","strLeagueBadge":"https:\/\/r2.thesportsdb.com\/images\/media\/league\/badge\/9f7z9d1742983155.png","strSeason":"2026-2027","strDescriptionEN":null,"strHomeTeam":"Rennes","strAwayTeam":"Lille","intHomeScore":null,"intHomeScoreExtra":null,"intAwayScoreExtra":null,"intRound":"10","intAwayScore":null,"intSpectators":null,"strOfficial":"","strWeather":null,"dateEvent":"2026-11-08","dateEventLocal":null,"strTime":"14:00:00","strTimeLocal":null,"strGroup":null,"idHomeTeam":"133719","strHomeTeamBadge":"https:\/\/r2.thesportsdb.com\/images\/media\/team\/badge\/ypturx1473504818.png","idAwayTeam":"133711","strAwayTeamBadge":"https:\/\/r2.thesportsdb.com\/images\/media\/team\/badge\/2giize1534005340.png","intScore":null,"intScoreVotes":null,"strResult":null,"idVenue":"16104","strVenue":"Roazhon Park","strCountry":"France","strCity":null,"strPoster":"https:\/\/r2.thesportsdb.com\/images\/media\/event\/poster\/stagoy1756020337.jpg","strSquare":"","strFanart":null,"strThumb":"https:\/\/r2.thesportsdb.com\/images\/media\/event\/thumb\/tqonsv1754808791.jpg","strThumbAlternate":null,"strBanner":"","strMap":null,"strTweet1":null,"strVideo":null,"strStatus":"NS","strPostponed":"no","strLocked":"unlocked"}]}
+HTTP 2
+{"strTeam":"Lille","strStadium":"Decathlon Arena - Stade Pierre-Mauroy"}
+2026-11-06T19:45:00 | Toulouse vs Strasbourg | Stadium de Toulouse
+=== SNCF (no key: expect 401)
+401
+=== AirLabs (no key: expect error json)
+{"error":{"message":"Unknown api_key","code":"unknown_api_key"},"terms":"Unauthorized access is prohibited and punishable by law. \nReselling data 'As Is' without AirLabs.Co permission is strictly prohibited. \nFull terms on https://airlabs.co/. \nContact us info@airlabs.co"}
+=== Weather open-meteo
+{"time":"2026-11-05T20:00","interval":900,"temperature_2m":5.1,"weather_code":0}
+[0,0,0]
+=== Fuel prices
+"total=46"
+{"adresse":"237 Avenue de l'Hippodrome","ville":"Lambersart","geom":{"lon":3.029,"lat":50.645},"e10_prix":1.998,"gazole_prix":2.299,"sp98_prix":2.098}
+{"adresse":"Rue du Pré Catelan","ville":"La Madeleine","geom":{"lon":3.06,"lat":50.655},"e10_prix":2.04,"gazole_prix":2.229,"sp98_prix":2.196}
+{"adresse":"BOULEVARD DU BOIS D'HENCHEMONT","ville":"Lesquin","geom":{"lon":3.1113689595327996,"lat":50.581239973871995},"e10_prix":null,"gazole_prix":2.496,"sp98_prix":null}
+=== Overpass speed limit
+<html>
+<head><title>406 Not Acceptable</title></head>
+<body>
+<center><h1>406 Not Acceptable</h1></center>
+<hr><center>nginx</center>
+</body>
+</html>
+
+HTTP 406
+
+=== Overpass with the app's User-Agent (GET, then POST)
+# 502 Gateway Timeout
+
+This Overpass API server is currently at capacity. All query workers are busy
+and the request queue is full.
+
+## What to do
+
+Retry your request using exponential backoff: wait a short interval, then retry.
+If the request fails again, double the wait time and retry again.
+
+## For heavy or automated use
+
+This public endpoint is intended for browser-based and human-operated too
+# 502 Gateway Timeout
+
+This Overpass API server is currently at capacity. All query workers are busy
+and the request queue is full.
+
+## What to do
+
+Retry your request using exponential backoff: wait a short interval, then retry.
+If the request fails again, double the wait time and retry again.
+
+## For heavy or automated use
+
+This public endpoint is intended for browser-based and human-operated too
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-07-28T02:16:18Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "way",
+  "id": 51436545,
+  "tags": {
+    "cycleway:both": "no",
+    "highway": "residential",
+    "lit": "yes
+=== Updater (GitHub latest release)
+v1.0.47
+HMZ-Play.apk
+=== Waze page on APKMirror (HTTP code; 403 = anti-robot, page exists for humans)
+200

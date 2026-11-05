@@ -1,0 +1,262 @@
++ echo '=== crashes ==='
+=== crashes ===
++ adb logcat -d
++ grep -E 'FATAL EXCEPTION|AndroidRuntime|ANR in' -A25
++ head -200
+11-05 20:06:48.206  5195  5195 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-05 20:06:48.211  3312  3649 D RcsProvisioning: No backup token found
+11-05 20:06:48.211  3312  3649 E CarrierServices: [72] iez.getFile: File not found.: /data/user/0/com.google.android.apps.messaging/files/httpft_pending (No such file or directory)
+11-05 20:06:48.211  3312  3649 E CarrierServices: 	java.io.FileInputStream.open0(Native Method)
+11-05 20:06:48.211  3312  3649 E CarrierServices: 	java.io.FileInputStream.open(FileInputStream.java:231)
+11-05 20:06:48.211  3312  3649 E CarrierServices: 	java.io.FileInputStream.<init>(FileInputStream.java:165)
+11-05 20:06:48.211  3312  3649 E CarrierServices: 	android.app.ContextImpl.openFileInput(ContextImpl.java:560)
+11-05 20:06:48.211  3312  3649 E CarrierServices: 	android.content.ContextWrapper.openFileInput(ContextWrapper.java:202)
+11-05 20:06:48.211  3312  3649 E CarrierServices: 	iez.getFile(SourceFile:20)
+11-05 20:06:48.211  3312  3649 E CarrierServices: 	com.google.android.apps.messaging.rcsmigration.RcsStateProvider.buildRcsState(SourceFile:136)
+11-05 20:06:48.211  3312  3649 E CarrierServices: 	com.google.android.apps.messaging.rcsmigration.RcsStateProvider.getRcsState(SourceFile:6)
+11-05 20:06:48.211  3312  3649 E CarrierServices: 	com.google.android.ims.rcsmigration.IRcsStateProvider$Stub.dispatchTransaction(SourceFile:10)
+11-05 20:06:48.211  3312  3649 E CarrierServices: 	com.google.android.aidl.BaseStub.onTransact(SourceFile:18)
+11-05 20:06:48.211  3312  3649 E CarrierServices: 	android.os.Binder.execTransact(Binder.java:731)
+11-05 20:06:48.212  3474  3509 I CarrierServices: [44] awt.doInBackground: Saving RCS State
+11-05 20:06:48.212  3474  3509 I CarrierServices: [44] awt.doInBackground: Old operation mode: 2
+11-05 20:06:48.213  3474  3509 I CarrierServices: [44] awt.doInBackground: New operation mode: 2
+11-05 20:06:48.214  3474  3474 I CarrierServices: [2] RcsAutoStartReceiver.b: carrierServicesJibeServiceEnabled changed from true to true
+11-05 20:06:48.214  3474  3474 I CarrierServices: [2] RcsAutoStartReceiver.b: enableRcs changed from true to true
+11-05 20:06:48.215  3474  3474 I CarrierServices: [2] RcsAutoStartReceiver.b: RcsAutoStartReceiver triggered. Fetching RCS State. Action: android.intent.action.PACKAGE_CHANGED
+11-05 20:06:48.216  3474  3474 I CarrierServices: [2] aws.a: Migration binding to RcsMigrationService
+11-05 20:06:48.217  1904  3667 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_ADDED dat=package:com.hmz.play flg=0x4000010 (has extras) } to com.android.musicfx/.Compatibility$Receiver
+11-05 20:06:48.218  1904  1921 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_ADDED dat=package:com.hmz.play flg=0x4000010 (has extras) } to com.google.android.gms/.games.chimera.GamesSystemBroadcastReceiverProxy
+11-05 20:06:48.218  1904  1921 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_ADDED dat=package:com.hmz.play flg=0x4000010 (has extras) } to com.google.android.gms/.gass.chimera.PackageChangeBroadcastReceiver
+11-05 20:06:48.218  1904  1921 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_ADDED dat=package:com.hmz.play flg=0x4000010 (has extras) } to com.google.android.gms/.chimera.GmsIntentOperationService$PersistentTrustedReceiver
+11-05 20:06:48.219  1904  1921 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_ADDED dat=package:com.hmz.play flg=0x4000010 (has extras) } to com.google.android.googlequicksearchbox/com.google.android.apps.gsa.googlequicksearchbox.GelStubAppWatcher
+--
+11-05 20:06:48.336  5195  5195 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-05 20:06:48.337  5195  5195 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_HOME, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=111507, downTime=111507, deviceId=-1, source=0x101 }
+11-05 20:06:48.338  5195  5195 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_HOME, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=111507, downTime=111507, deviceId=-1, source=0x101 }
+11-05 20:06:48.339  3312  3312 D RcsClientLib: Service com.google.android.rcs.client.ims.ImsConnectionTrackerService connected. Will notify listeners: true
+11-05 20:06:48.339  3312  3312 V BugleRcs: com.google.android.rcs.client.ims.ImsConnectionTrackerService RCS service connected
+11-05 20:06:48.339  1904  1927 D AutofillManagerService: Close system dialogs
+11-05 20:06:48.342  3312  3649 I CarrierServices: [72] inq.e: Network Operator: 310260
+11-05 20:06:48.342  1904  1978 I ActivityManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.HOME] flg=0x10200000 cmp=com.hmz.play/.MainActivity (has extras)} from uid 1000
+11-05 20:06:48.342  3312  3649 I CarrierServices: [72] inq.e: carrierWithOldEcApis: false
+11-05 20:06:48.343  3312  3649 I CarrierServices: [72] inq.e: hasDialerThatSupportsNewEc: false
+11-05 20:06:48.344  2097  2097 V StatusBar: mStatusBarWindow: com.android.systemui.statusbar.phone.StatusBarWindowView{ee07660 V.ED..... ........ 0,0-1280,24} canPanelBeCollapsed(): false
+11-05 20:06:48.344  3312  3649 I CarrierServices: [72] jsn.connect: shouldUseCarrierServicesJibeService: true, CarrierServices rcs service found: true
+11-05 20:06:48.344  3312  3649 I CarrierServices: [72] jsn.connect: Binding to JibeService in CarrierServices.
+11-05 20:06:48.345  2097  2097 I vol.Events: writeEvent dismiss_dialog volume_controller
+11-05 20:06:48.348  3312  3312 V BugleRcs: kicking off RCS sending/receiving
+11-05 20:06:48.348  3312  3312 V BugleAction: no RCS because we're not registered
+11-05 20:06:48.358  5195  5195 D AndroidRuntime: Shutting down VM
+11-05 20:06:48.361  4734  4734 W ActivityThread: handleWindowVisibility: no activity for token android.os.BinderProxy@40ac3a1
+11-05 20:06:48.361  3312  3312 D RcsClientLib: Service com.google.android.rcs.client.profile.RcsProfileService connected. Will notify listeners: true
+11-05 20:06:48.361  3312  3312 V BugleRcs: com.google.android.rcs.client.profile.RcsProfileService RCS service connected
+11-05 20:06:48.361  3312  3312 V BugleRcs: kicking off RCS sending/receiving
+11-05 20:06:48.361  3312  3312 V BugleAction: no RCS because we're not registered
+11-05 20:06:48.361  3474  5176 W CarrierServices: [82] bmc.a: No config URL. RCS will be disabled!
+11-05 20:06:48.362  3312  3312 I BugleRcs: RcsAvailability ACS url: null
+11-05 20:06:48.363  3312  3649 I CarrierServices: [72] inq.e: Network Operator: 310260
+11-05 20:06:48.368  3312  3649 I CarrierServices: [72] inq.e: carrierWithOldEcApis: false
+11-05 20:06:48.368  3312  3649 I CarrierServices: [72] inq.e: hasDialerThatSupportsNewEc: false
+11-05 20:06:48.369  3312  3649 I CarrierServices: [72] jsn.connect: shouldUseCarrierServicesJibeService: true, CarrierServices rcs service found: true
+11-05 20:06:48.369  3312  3649 I CarrierServices: [72] jsn.connect: Binding to JibeService in CarrierServices.
+11-05 20:06:48.378  4877  4877 D DashboardSummary: Stopped listening for condition changes
+11-05 20:06:48.381  1599  1645 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 3690496
+11-05 20:06:48.400  3312  3312 D RcsClientLib: Service com.google.android.rcs.client.businessinfo.BusinessInfoService connected. Will notify listeners: true
+11-05 20:06:48.400  3312  3312 V BugleRcs: com.google.android.rcs.client.businessinfo.BusinessInfoService RCS service connected
+11-05 20:06:48.400  3312  3312 V BugleRcs: kicking off RCS sending/receiving
+11-05 20:06:48.401  3312  3312 V BugleAction: no RCS because we're not registered
+11-05 20:06:48.401  3474  5176 W CarrierServices: [82] bmc.a: No config URL. RCS will be disabled!
+11-05 20:06:48.401  3312  3312 I BugleRcs: RcsAvailability ACS url: null
+11-05 20:06:48.409  3312  3649 W RcsProvisioning: Failed to read configuration: /data/user/0/com.google.android.apps.messaging/files/rcsconfig (No such file or directory)
+11-05 20:06:48.409  3312  3649 W RcsProvisioning: java.io.FileNotFoundException: /data/user/0/com.google.android.apps.messaging/files/rcsconfig (No such file or directory)
+11-05 20:06:48.409  3312  3649 W RcsProvisioning: 	at java.io.FileInputStream.open0(Native Method)
+11-05 20:06:48.409  3312  3649 W RcsProvisioning: 	at java.io.FileInputStream.open(FileInputStream.java:231)
+11-05 20:06:48.409  3312  3649 W RcsProvisioning: 	at java.io.FileInputStream.<init>(FileInputStream.java:165)
+--
+11-05 20:06:56.763  5362  5362 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-05 20:06:56.773  2068  5143 I Auth    : [AuthManaged,PasswordComplexityHelperImpl] Updating password complexity components state.
+11-05 20:06:56.773  2068  5143 I Auth    : [AuthManaged,PasswordComplexityHelperImpl] Disabling com.google.android.gms.auth.managed.admin.DeviceAdminReceiver
+11-05 20:06:56.774  2068  5143 I Auth    : [AuthManaged,PasswordComplexityHelperImpl] Disabling com.google.android.gms.auth.managed.ui.SetNewPasswordActivity
+11-05 20:06:56.781  2427  5302 I ChromeSync: [Sync,SyncIntentOperation] Handling the intent: Intent { act=com.google.android.gms.phenotype.COMMITTED flg=0x10 pkg=com.google.android.gms cmp=com.google.android.gms/.chimera.GmsIntentOperationService (has extras) }.
+11-05 20:06:56.783  2427  5297 I MdiSyncModule: flag handling is skipping irrelevant intent.
+11-05 20:06:56.785  2068  5100 I PTCommittedOperation: Receive new configuration for com.google.android.gms.trustagent
+11-05 20:06:56.792  2068  2106 I .gms.persisten: Background concurrent copying GC freed 117563(5MB) AllocSpace objects, 0(0B) LOS objects, 37% free, 10MB/16MB, paused 494us total 105.427ms
+11-05 20:06:56.797  2427  5091 W ModuleInitIntentOp: Dropping unexpected action com.google.android.gms.phenotype.COMMITTED
+11-05 20:06:56.814  2068  5143 I Auth    : [AuthManaged,PasswordComplexityHelperImpl] Updating password complexity components state.
+11-05 20:06:56.814  2068  5143 I Auth    : [AuthManaged,PasswordComplexityHelperImpl] Disabling com.google.android.gms.auth.managed.admin.DeviceAdminReceiver
+11-05 20:06:56.814  2068  5143 I Auth    : [AuthManaged,PasswordComplexityHelperImpl] Disabling com.google.android.gms.auth.managed.ui.SetNewPasswordActivity
+11-05 20:06:56.822  2427  5091 I ChromeSync: [Sync,SyncIntentOperation] Handling the intent: Intent { act=com.google.android.gms.phenotype.COMMITTED flg=0x10 pkg=com.google.android.gms cmp=com.google.android.gms/.chimera.GmsIntentOperationService (has extras) }.
+11-05 20:06:56.823  2427  5295 I MdiSyncModule: flag handling is skipping irrelevant intent.
+11-05 20:06:56.827  2068  5100 I PTCommittedOperation: Receive new configuration for com.google.android.gms.trustlet_onbody
+11-05 20:06:56.831  2427  5298 W ModuleInitIntentOp: Dropping unexpected action com.google.android.gms.phenotype.COMMITTED
+11-05 20:06:56.854  5362  5362 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-05 20:06:56.855  5362  5362 I app_process: The ClassLoaderContext is a special shared library.
+11-05 20:06:56.867  5362  5362 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-05 20:06:56.871  2068  5143 I Auth    : [AuthManaged,PasswordComplexityHelperImpl] Updating password complexity components state.
+11-05 20:06:56.871  2068  5143 I Auth    : [AuthManaged,PasswordComplexityHelperImpl] Disabling com.google.android.gms.auth.managed.admin.DeviceAdminReceiver
+11-05 20:06:56.871  2068  5143 I Auth    : [AuthManaged,PasswordComplexityHelperImpl] Disabling com.google.android.gms.auth.managed.ui.SetNewPasswordActivity
+11-05 20:06:56.876  2068  5317 I PTCommittedOperation: Receive new configuration for com.google.android.gms.languageprofile
+11-05 20:06:56.878  2427  5308 I ChromeSync: [Sync,SyncIntentOperation] Handling the intent: Intent { act=com.google.android.gms.phenotype.COMMITTED flg=0x10 pkg=com.google.android.gms cmp=com.google.android.gms/.chimera.GmsIntentOperationService (has extras) }.
+11-05 20:06:56.879  2427  5304 I MdiSyncModule: flag handling is skipping irrelevant intent.
+11-05 20:06:56.894  5362  5362 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=640.0, y[0]=360.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=120037, downTime=120037, deviceId=0, source=0x1002 }
+11-05 20:06:56.895  2427  5304 W ModuleInitIntentOp: Dropping unexpected action com.google.android.gms.phenotype.COMMITTED
+11-05 20:06:56.905  5362  5362 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=640.0, y[0]=360.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=120037, downTime=120037, deviceId=0, source=0x1002 }
+11-05 20:06:56.906  5362  5362 D AndroidRuntime: Shutting down VM
+11-05 20:06:56.921  1904  2364 I ActivityManager: START u0 {flg=0x8000 cmp=com.android.settings/.Settings$NetworkDashboardActivity (has extras)} from uid 1000
+11-05 20:06:56.929  1904  2052 I AudioTrack: AUDIO_OUTPUT_FLAG_FAST successful; frameCount 0 -> 4512
+11-05 20:06:56.944  4877  4877 W ActivityThread: handleWindowVisibility: no activity for token android.os.BinderProxy@ce0c0dd
+11-05 20:06:56.945  4877  4877 D DashboardSummary: Stopped listening for condition changes
+11-05 20:06:56.949  4877  4877 D SettingsActivity: Starting onCreate
+11-05 20:06:56.962  4877  4877 D SettingsActivity: Starting to set activity title
+11-05 20:06:56.962  4877  4877 D SettingsActivity: Done setting title
+11-05 20:06:56.962  4877  4877 D SettingsActivity: Switching to fragment com.android.settings.network.NetworkDashboardFragment
+11-05 20:06:56.968  2427  2436 W SQLiteConnectionPool: A SQLiteConnection object for database '/data/user/0/com.google.android.gms/databases/lighter_registration.db' was leaked!  Please fix your application to end transactions in progress properly and to close the database when it is no longer needed.
+11-05 20:06:56.968  2427  2436 W System  : A resource failed to call close. 
+11-05 20:06:56.968  2427  2436 W System  : A resource failed to call close. 
+11-05 20:06:56.977  4877  4877 E BluetoothAdapter: Bluetooth binder is null
+11-05 20:06:56.978  4877  4877 D PrefCtrlListHelper: Could not find Context-only controller for pref: com.android.settings.network.AirplaneModePreferenceController
+11-05 20:06:56.983  2068  5143 I Auth    : [AuthManaged,PasswordComplexityHelperImpl] Updating password complexity components state.
+11-05 20:06:56.983  2068  5143 I Auth    : [AuthManaged,PasswordComplexityHelperImpl] Disabling com.google.android.gms.auth.managed.admin.DeviceAdminReceiver
+11-05 20:06:56.983  2068  5143 I Auth    : [AuthManaged,PasswordComplexityHelperImpl] Disabling com.google.android.gms.auth.managed.ui.SetNewPasswordActivity
+11-05 20:06:56.990  2068  5322 I PTCommittedOperation: Receive new configuration for com.google.android.gms.mobile_data_plan
+11-05 20:06:56.995  1904  4537 W ActivityManager: Unable to start service Intent { act=com.google.android.gms.auth.key.retrieval.service.START pkg=com.google.android.gms } U=0: not found
+11-05 20:06:56.995  2427  5293 I ChromeSync: [Sync,SyncIntentOperation] Handling the intent: Intent { act=com.google.android.gms.phenotype.COMMITTED flg=0x10 pkg=com.google.android.gms cmp=com.google.android.gms/.chimera.GmsIntentOperationService (has extras) }.
+11-05 20:06:56.996  2427  5308 I MdiSyncModule: flag handling is skipping irrelevant intent.
+11-05 20:06:56.998  2427  5302 W ModuleInitIntentOp: Dropping unexpected action com.google.android.gms.phenotype.COMMITTED
+11-05 20:06:57.001  1904  4537 W ActivityManager: Unbind failed: could not find connection for android.os.BinderProxy@476590c
+11-05 20:06:57.002  2427  3139 E GmsClient: unable to connect to service: com.google.android.gms.auth.key.retrieval.service.START on com.google.android.gms
+11-05 20:06:57.006  4877  4877 D MobilePlanPrefContr: onCreate: mMobilePlanDialogMessage=null
+11-05 20:06:57.023  4877  4877 D SettingsActivity: Executed frag manager pendingTransactions
+--
+11-05 20:08:02.739  5634  5634 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-05 20:08:02.767  5634  5634 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-05 20:08:02.768  5634  5634 I app_process: The ClassLoaderContext is a special shared library.
+11-05 20:08:02.783  5634  5634 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-05 20:08:02.785  5634  5634 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=1000.0, y[0]=620.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=185953, downTime=185953, deviceId=0, source=0x1002 }
+11-05 20:08:02.789  5634  5634 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=1000.0, y[0]=620.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=185953, downTime=185953, deviceId=0, source=0x1002 }
+11-05 20:08:02.798  5634  5634 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=1000.0, y[0]=605.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=185968, downTime=185968, deviceId=0, source=0x1002 }
+11-05 20:08:02.817  5634  5634 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=1000.0, y[0]=586.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=185987, downTime=185987, deviceId=0, source=0x1002 }
+11-05 20:08:02.836  5634  5634 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=1000.0, y[0]=567.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=186006, downTime=186006, deviceId=0, source=0x1002 }
+11-05 20:08:02.849  5634  5634 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=1000.0, y[0]=554.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=186019, downTime=186019, deviceId=0, source=0x1002 }
+11-05 20:08:02.866  5634  5634 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=1000.0, y[0]=537.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=186036, downTime=186036, deviceId=0, source=0x1002 }
+11-05 20:08:02.883  5634  5634 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=1000.0, y[0]=520.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=186053, downTime=186053, deviceId=0, source=0x1002 }
+11-05 20:08:02.902  5634  5634 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=1000.0, y[0]=501.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=186072, downTime=186072, deviceId=0, source=0x1002 }
+11-05 20:08:02.919  5634  5634 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=1000.0, y[0]=484.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=186089, downTime=186089, deviceId=0, source=0x1002 }
+11-05 20:08:02.936  5634  5634 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=1000.0, y[0]=468.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=186105, downTime=186105, deviceId=0, source=0x1002 }
+11-05 20:08:02.953  5634  5634 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=1000.0, y[0]=450.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=186123, downTime=186123, deviceId=0, source=0x1002 }
+11-05 20:08:02.970  5634  5634 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=1000.0, y[0]=433.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=186140, downTime=186140, deviceId=0, source=0x1002 }
+11-05 20:08:02.986  5634  5634 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=1000.0, y[0]=417.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=186156, downTime=186156, deviceId=0, source=0x1002 }
+11-05 20:08:03.011  5634  5634 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=1000.0, y[0]=392.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=186181, downTime=186181, deviceId=0, source=0x1002 }
+11-05 20:08:03.020  5634  5634 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=1000.0, y[0]=383.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=186190, downTime=186190, deviceId=0, source=0x1002 }
+11-05 20:08:03.038  5634  5634 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=1000.0, y[0]=365.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=186208, downTime=186208, deviceId=0, source=0x1002 }
+11-05 20:08:03.054  5634  5634 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=1000.0, y[0]=349.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=186224, downTime=186224, deviceId=0, source=0x1002 }
+11-05 20:08:03.071  5634  5634 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=1000.0, y[0]=332.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=186241, downTime=186241, deviceId=0, source=0x1002 }
+11-05 20:08:03.088  5634  5634 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=1000.0, y[0]=315.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=186258, downTime=186258, deviceId=0, source=0x1002 }
+11-05 20:08:03.105  5634  5634 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=1000.0, y[0]=298.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=186275, downTime=186275, deviceId=0, source=0x1002 }
+11-05 20:08:03.122  5634  5634 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=1000.0, y[0]=281.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=186292, downTime=186292, deviceId=0, source=0x1002 }
+11-05 20:08:03.139  5634  5634 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=1000.0, y[0]=264.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=186309, downTime=186309, deviceId=0, source=0x1002 }
+11-05 20:08:03.156  5634  5634 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=1000.0, y[0]=247.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=186326, downTime=186326, deviceId=0, source=0x1002 }
+11-05 20:08:03.173  5634  5634 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=1000.0, y[0]=230.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=186343, downTime=186343, deviceId=0, source=0x1002 }
+--
+11-05 20:08:03.293  5634  5634 D AndroidRuntime: Shutting down VM
+11-05 20:08:04.177  1904  2058 I GnssLocationProvider: WakeLock acquired by sendMessage(REPORT_SV_STATUS, 0, com.android.server.location.GnssLocationProvider$SvStatusInfo@988b4bc)
+11-05 20:08:04.177  1904  1920 I GnssLocationProvider: WakeLock released by handleMessage(REPORT_SV_STATUS, 0, com.android.server.location.GnssLocationProvider$SvStatusInfo@988b4bc)
+11-05 20:08:04.177  1904  2058 I GnssLocationProvider: WakeLock acquired by sendMessage(REPORT_LOCATION, 1, Location[gps 50.630000,3.060000 hAcc=20 et=?!? alt=0.0 vel=0.0 bear=0.0 vAcc=??? sAcc=??? bAcc=???])
+11-05 20:08:04.178  1904  1920 I GnssLocationProvider: WakeLock released by handleMessage(REPORT_LOCATION, 1, Location[gps 50.630000,3.060000 hAcc=20 et=+3m7s347ms alt=0.0 vel=0.0 bear=0.0 vAcc=??? sAcc=??? bAcc=??? {Bundle[{satellites=0, maxCn0=0, meanCn0=0}]}])
+11-05 20:08:05.177  1904  2058 I GnssLocationProvider: WakeLock acquired by sendMessage(REPORT_SV_STATUS, 0, com.android.server.location.GnssLocationProvider$SvStatusInfo@bae6c45)
+11-05 20:08:05.177  1904  2058 I GnssLocationProvider: WakeLock acquired by sendMessage(REPORT_LOCATION, 1, Location[gps 50.630000,3.060000 hAcc=20 et=?!? alt=0.0 vel=0.0 bear=0.0 vAcc=??? sAcc=??? bAcc=???])
+11-05 20:08:05.177  1904  1920 I GnssLocationProvider: WakeLock released by handleMessage(REPORT_SV_STATUS, 0, com.android.server.location.GnssLocationProvider$SvStatusInfo@bae6c45)
+11-05 20:08:05.178  1904  1920 I GnssLocationProvider: WakeLock released by handleMessage(REPORT_LOCATION, 1, Location[gps 50.630000,3.060000 hAcc=20 et=+3m8s348ms alt=0.0 vel=0.0 bear=0.0 vAcc=??? sAcc=??? bAcc=??? {Bundle[{satellites=0, maxCn0=0, meanCn0=0}]}])
+11-05 20:08:05.344  1742  1976 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-05 20:08:05.344  1599  4809 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 3690496
+11-05 20:08:05.352  5649  5649 D HostConnection: createUnique: call
+11-05 20:08:05.353  5649  5649 D HostConnection: HostConnection::get() New Host Connection established 0x75c0de841640, tid 5649
+11-05 20:08:05.355  5649  5649 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_dma_v1 ANDROID_EMU_YUV420_888_to_NV21 ANDROID_EMU_YUV_Cache ANDROID_EMU_sync_buffer_data ANDROID_EMU_hwc_color_transform GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_0 
+11-05 20:08:05.355  5649  5649 E eglCodecCommon: GoldfishAddressSpaceHostMemoryAllocator: ioctl_ping failed for device_type=5, ret=-1
+11-05 20:08:05.621  5651  5651 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-05 20:08:05.647  5651  5651 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-05 20:08:05.649  5651  5651 I app_process: The ClassLoaderContext is a special shared library.
+11-05 20:08:05.662  5651  5651 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-05 20:08:05.665  5651  5651 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=1000.0, y[0]=620.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=188832, downTime=188832, deviceId=0, source=0x1002 }
+11-05 20:08:05.668  5651  5651 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=1000.0, y[0]=620.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=188832, downTime=188832, deviceId=0, source=0x1002 }
+11-05 20:08:05.682  5651  5651 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=1000.0, y[0]=600.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=188852, downTime=188852, deviceId=0, source=0x1002 }
+11-05 20:08:05.699  5651  5651 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=1000.0, y[0]=583.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=188869, downTime=188869, deviceId=0, source=0x1002 }
+11-05 20:08:05.714  3312  3312 D BugleDataModel: ActionExecutor Empty Service started
+11-05 20:08:05.719  3312  5661 I BugleDataModel: ParticipantRefresh: Start participant refresh. refreshMode: 1
+11-05 20:08:05.725  5651  5651 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=1000.0, y[0]=557.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=188895, downTime=188895, deviceId=0, source=0x1002 }
+11-05 20:08:05.727  3312  3312 D BugleDataModel: ActionExecutor Empty Service destroyed
+11-05 20:08:05.734  5651  5651 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=1000.0, y[0]=548.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=188904, downTime=188904, deviceId=0, source=0x1002 }
+11-05 20:08:05.743  3312  5661 I BugleDataModel: ParticipantData: update phone number for Self, from MSISDN{null} to MSISDN{+d}
+11-05 20:08:05.751  5651  5651 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=1000.0, y[0]=531.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=188921, downTime=188921, deviceId=0, source=0x1002 }
+11-05 20:08:05.768  5651  5651 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=1000.0, y[0]=514.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=188938, downTime=188938, deviceId=0, source=0x1002 }
+11-05 20:08:05.769  1904  4510 D CountryDetector: The first listener is added
+11-05 20:08:05.785  5651  5651 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=1000.0, y[0]=497.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=188955, downTime=188955, deviceId=0, source=0x1002 }
+11-05 20:08:05.795  3312  5661 I BugleDataModel: ParticipantData: update phone number for Self, from MSISDN{null} to MSISDN{+d}
+11-05 20:08:05.801  5651  5651 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=1000.0, y[0]=481.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=188971, downTime=188971, deviceId=0, source=0x1002 }
+11-05 20:08:05.819  5651  5651 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=1000.0, y[0]=463.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=188989, downTime=188989, deviceId=0, source=0x1002 }
+11-05 20:08:05.822  3312  5661 I BugleDataModel: ParticipantRefresh: Number of participants refreshed: 2
+11-05 20:08:05.835  5651  5651 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=1000.0, y[0]=447.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=189005, downTime=189005, deviceId=0, source=0x1002 }
+11-05 20:08:05.836  2427  2560 I Icing   : IndexChimeraService.getServiceInterface callingPackage=com.google.android.apps.messaging componentName=null serviceId=36
+11-05 20:08:05.849  2427  3339 W Icing   : No valid account for uploading user actions
+11-05 20:08:05.853  5651  5651 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=1000.0, y[0]=429.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=189023, downTime=189023, deviceId=0, source=0x1002 }
+11-05 20:08:05.854  2427  2560 I Icing   : IndexChimeraService.getServiceInterface callingPackage=com.google.android.apps.messaging componentName=null serviceId=36
+11-05 20:08:05.864  2427  2560 I Icing   : IndexChimeraService.getServiceInterface callingPackage=com.google.android.gms componentName=null serviceId=30
+11-05 20:08:05.869  2427  3339 I Icing   : Usage reports ok 0, Failed Usage reports 0, indexed 0, rejected 0
+--
++ echo '=== HMZ warnings/errors ==='
+=== HMZ warnings/errors ===
++ adb logcat -d
++ grep -iE 'hmz|com\.hmz'
++ grep -E ' [EW] '
++ head -150
+11-05 20:06:27.502  4734  4734 W com.hmz.play: Unexpected CPU variant for X86 using defaults: x86_64
+11-05 20:06:28.296  4734  4734 E BitmapFactory: Unable to decode stream: java.io.FileNotFoundException: /data/user/0/com.hmz.play/files/wallpaper.jpg (No such file or directory)
+11-05 20:06:28.662  4734  4734 W com.hmz.play: Accessing hidden method Landroid/view/RenderNode;->getScaleX()F (dark greylist, linking)
+11-05 20:06:28.662  4734  4734 W com.hmz.play: Accessing hidden method Landroid/view/RenderNode;->setClipToOutline(Z)Z (dark greylist, linking)
+11-05 20:06:28.662  4734  4734 W com.hmz.play: Accessing hidden method Landroid/view/RenderNode;->setLayerType(I)Z (dark greylist, linking)
+11-05 20:06:28.662  4734  4734 W com.hmz.play: Accessing hidden method Landroid/view/RenderNode;->setLayerType(I)Z (dark greylist, linking)
+11-05 20:06:28.662  4734  4734 W com.hmz.play: Accessing hidden method Landroid/view/RenderNode;->setPivotX(F)Z (dark greylist, linking)
+11-05 20:06:28.665  4734  4734 W com.hmz.play: Accessing hidden method Landroid/view/RenderNode;->getMatrix(Landroid/graphics/Matrix;)V (dark greylist, linking)
+11-05 20:06:28.666  4734  4734 W com.hmz.play: Accessing hidden method Landroid/view/RenderNode;->getElevation()F (dark greylist, linking)
+11-05 20:06:28.666  4734  4734 W com.hmz.play: Accessing hidden method Landroid/view/RenderNode;->getAlpha()F (dark greylist, linking)
+11-05 20:06:28.666  4734  4734 W com.hmz.play: Accessing hidden method Landroid/view/RenderNode;->setRotationY(F)Z (dark greylist, linking)
+11-05 20:06:28.666  4734  4734 W com.hmz.play: Accessing hidden method Landroid/view/RenderNode;->setTranslationX(F)Z (dark greylist, linking)
+11-05 20:06:28.666  4734  4734 W com.hmz.play: Accessing hidden method Landroid/view/RenderNode;->setAlpha(F)Z (dark greylist, linking)
+11-05 20:06:28.666  4734  4734 W com.hmz.play: Accessing hidden method Landroid/view/RenderNode;->setScaleY(F)Z (dark greylist, linking)
+11-05 20:06:28.666  4734  4734 W com.hmz.play: Accessing hidden method Landroid/view/RenderNode;->setRotation(F)Z (dark greylist, linking)
+11-05 20:06:28.666  4734  4734 W com.hmz.play: Accessing hidden method Landroid/view/RenderNode;->setTranslationY(F)Z (dark greylist, linking)
+11-05 20:06:28.666  4734  4734 W com.hmz.play: Accessing hidden method Landroid/view/RenderNode;->setCameraDistance(F)Z (dark greylist, linking)
+11-05 20:06:28.666  4734  4734 W com.hmz.play: Accessing hidden method Landroid/view/RenderNode;->setOutline(Landroid/graphics/Outline;)Z (dark greylist, linking)
+11-05 20:06:28.666  4734  4734 W com.hmz.play: Accessing hidden method Landroid/view/RenderNode;->setScaleX(F)Z (dark greylist, linking)
+11-05 20:06:28.666  4734  4734 W com.hmz.play: Accessing hidden method Landroid/view/RenderNode;->setRotationX(F)Z (dark greylist, linking)
+11-05 20:06:28.667  4734  4734 W com.hmz.play: Accessing hidden method Landroid/view/RenderNode;->setPivotY(F)Z (dark greylist, linking)
+11-05 20:06:28.667  4734  4734 W com.hmz.play: Accessing hidden method Landroid/view/RenderNode;->setElevation(F)Z (dark greylist, linking)
+11-05 20:06:28.667  4734  4734 W com.hmz.play: Accessing hidden method Landroid/view/RenderNode;->getClipToOutline()Z (dark greylist, linking)
+11-05 20:06:28.667  4734  4734 W com.hmz.play: Accessing hidden method Landroid/view/RenderNode;->offsetTopAndBottom(I)Z (dark greylist, linking)
+11-05 20:06:28.675  4734  4734 W com.hmz.play: Accessing hidden method Landroid/view/RenderNode;->getScaleX()F (dark greylist, linking)
+11-05 20:06:29.978  1742  2552 W SurfaceFlinger: Attempting to set client state on removed layer: Splash Screen com.hmz.play#0
+11-05 20:06:29.978  1742  2552 W SurfaceFlinger: Attempting to destroy on removed layer: Splash Screen com.hmz.play#0
+11-05 20:06:30.426  4734  4734 W com.hmz.play: Accessing hidden method Landroid/view/RenderNode;->getScaleX()F (dark greylist, linking)
+11-05 20:06:32.025  2068  4495 W GCM     : Unexpected forwarded intent: Intent { act=android.intent.action.PACKAGE_ADDED dat=package:com.hmz.play flg=0x4000010 cmp=com.google.android.gms/.chimera.PersistentIntentOperationService (has extras) }
+11-05 20:06:32.050  2068  3263 W GCM     : Unexpected forwarded intent: Intent { act=android.intent.action.PACKAGE_ADDED dat=package:com.hmz.play flg=0x4000010 cmp=com.google.android.gms/.chimera.PersistentIntentOperationService (has extras) }
+11-05 20:06:48.217  1904  3667 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_ADDED dat=package:com.hmz.play flg=0x4000010 (has extras) } to com.android.musicfx/.Compatibility$Receiver
+11-05 20:06:48.218  1904  1921 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_ADDED dat=package:com.hmz.play flg=0x4000010 (has extras) } to com.google.android.gms/.games.chimera.GamesSystemBroadcastReceiverProxy
+11-05 20:06:48.218  1904  1921 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_ADDED dat=package:com.hmz.play flg=0x4000010 (has extras) } to com.google.android.gms/.gass.chimera.PackageChangeBroadcastReceiver
+11-05 20:06:48.218  1904  1921 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_ADDED dat=package:com.hmz.play flg=0x4000010 (has extras) } to com.google.android.gms/.chimera.GmsIntentOperationService$PersistentTrustedReceiver
+11-05 20:06:48.219  1904  1921 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_ADDED dat=package:com.hmz.play flg=0x4000010 (has extras) } to com.google.android.googlequicksearchbox/com.google.android.apps.gsa.googlequicksearchbox.GelStubAppWatcher
+11-05 20:06:48.219  1904  1921 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_ADDED dat=package:com.hmz.play flg=0x4000010 (has extras) } to com.google.android.ims/.receivers.RcsAutoStartReceiver
+11-05 20:06:48.843  4734  4734 W com.hmz.play: Accessing hidden method Landroid/view/RenderNode;->getScaleX()F (dark greylist, linking)
+11-05 20:06:49.035  1742  2373 W SurfaceFlinger: Attempting to set client state on removed layer: Splash Screen com.hmz.play#0
+11-05 20:06:49.035  1742  2373 W SurfaceFlinger: Attempting to destroy on removed layer: Splash Screen com.hmz.play#0
+11-05 20:08:57.350  4734  4734 W com.hmz.play: Accessing hidden method Landroid/view/RenderNode;->getScaleX()F (dark greylist, linking)
+11-05 20:08:57.635  1742  1775 W SurfaceFlinger: Attempting to set client state on removed layer: Splash Screen com.hmz.play#0
+11-05 20:08:57.635  1742  1775 W SurfaceFlinger: Attempting to destroy on removed layer: Splash Screen com.hmz.play#0
++ echo '=== process alive ==='
+=== process alive ===
++ adb shell pidof com.hmz.play
+4734
++ echo '=== crash file ==='
+=== crash file ===
++ adb shell run-as com.hmz.play sh -c 'ls -R files; cat files/crash*.txt 2>/dev/null'
++ head -80
+run-as: package not debuggable: com.hmz.play

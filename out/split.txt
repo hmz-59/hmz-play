@@ -1,0 +1,23 @@
+    Task id #11
+      realActivity=com.hmz.play/.SideActivity
+          realActivity=com.hmz.play/.SideActivity
+    Task id #9
+      realActivity=com.google.android.apps.maps/com.google.android.maps.MapsActivity
+          realActivity=com.google.android.apps.maps/com.google.android.maps.MapsActivity
+    mResumedActivity: ActivityRecord{3190c4c u0 com.hmz.play/.SideActivity t11}
+    Task id #10
+      realActivity=com.google.android.apps.nexuslauncher/com.android.quickstep.RecentsActivity
+          realActivity=com.google.android.apps.nexuslauncher/com.android.quickstep.RecentsActivity
+    Task id #8
+      realActivity=com.hmz.play/.MainActivity
+          realActivity=com.hmz.play/.MainActivity
+    Task id #5
+      realActivity=com.google.android.apps.nexuslauncher/.NexusLauncherActivity
+          realActivity=com.google.android.apps.nexuslauncher/.NexusLauncherActivity
+    Task id #7
+      realActivity=com.android.settings/.Settings
+          realActivity=com.android.settings/.Settings$NetworkDashboardActivity
+          realActivity=com.android.settings/.Settings
+    Task id #6
+      realActivity=com.hmz.play/.MainActivity
+          realActivity=com.hmz.play/.MainActivity

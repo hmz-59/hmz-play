@@ -1,0 +1,1 @@
+    mResumedActivity: ActivityRecord{42ce733 u0 com.android.settings/.Settings t7}
