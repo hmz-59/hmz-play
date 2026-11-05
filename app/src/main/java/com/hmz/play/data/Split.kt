@@ -172,8 +172,37 @@ object Split {
         }
 
         val svc = SplitService.instance
+        if (svc == null) {
+            // Without the accessibility service: ask Android 9 directly to open the app in split screen
+            // (left/top half), then put HMZ Play in the other half.
+            val opts = runCatching {
+                val o = android.app.ActivityOptions.makeBasic()
+                o.javaClass.getMethod("setLaunchWindowingMode", Int::class.javaPrimitiveType).invoke(o, 3) // SPLIT_SCREEN_PRIMARY
+                o.toBundle()
+            }.getOrNull()
+            val started = opts != null && runCatching { ctx.startActivity(launch, opts) }.isSuccess
+            if (!started && runCatching { ctx.startActivity(launch) }.isFailure) { Apps.openNavigation(ctx); return }
+            if (started) {
+                main.postDelayed({
+                    // Only if Android really split the screen; otherwise leave Waze full screen.
+                    if (!Shell.inSplit) {
+                        android.widget.Toast.makeText(ctx, "Pour avoir Waze à côté de HMZ Play : Réglages HMZ › Barre CarPlay › Activer", android.widget.Toast.LENGTH_LONG).show()
+                        return@postDelayed
+                    }
+                    runCatching {
+                        ctx.startActivity(
+                            Intent(ctx, MainActivity::class.java).addFlags(
+                                Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT,
+                            ),
+                        )
+                    }
+                }, 900)
+            } else {
+                android.widget.Toast.makeText(ctx, "Pour avoir Waze à côté de HMZ Play : Réglages HMZ › Barre CarPlay › Activer", android.widget.Toast.LENGTH_LONG).show()
+            }
+            return
+        }
         if (runCatching { ctx.startActivity(launch) }.isFailure) { Apps.openNavigation(ctx); return }
-        if (svc == null) return
 
         // Waze is now in front: split it (it becomes the left/top half), then bring HMZ Play into the other half.
         main.postDelayed({
