@@ -86,28 +86,32 @@ private fun DrawScope.drawPrius(fl: Float, fr: Float, rl: Float, rr: Float, tr: 
     // Hood (short) + hood gap; opens upward (lighter + red edge)
     val hood = Path().apply {
         moveTo(30f, 30f); cubicTo(60f, 14f, 140f, 14f, 170f, 30f)
-        lineTo(176f, 108f); cubicTo(140f, 100f, 60f, 100f, 24f, 108f); close()
+        lineTo(176f, 92f); cubicTo(140f, 84f, 60f, 84f, 24f, 92f); close()
     }
     drawPath(hood, if (hd > 0.01f) OPEN.copy(alpha = 0.35f + 0.4f * hd) else BODY_LIGHT.copy(alpha = 0.35f))
     drawPath(hood, Color.Black.copy(alpha = 0.25f), style = Stroke(1.5f))
 
     // Windscreen — long and very raked (typical Prius 2)
     val ws = Path().apply {
-        moveTo(26f, 116f); cubicTo(60f, 104f, 140f, 104f, 174f, 116f)
-        lineTo(166f, 186f); cubicTo(130f, 178f, 70f, 178f, 34f, 186f); close()
+        moveTo(24f, 98f); cubicTo(60f, 86f, 140f, 86f, 176f, 98f)
+        lineTo(164f, 206f); cubicTo(130f, 198f, 70f, 198f, 36f, 206f); close()
     }
-    drawPath(ws, Brush.verticalGradient(listOf(GLASS_HI, GLASS), 104f, 186f))
+    drawPath(ws, Brush.verticalGradient(listOf(GLASS_HI, GLASS), 86f, 206f))
+    // A-pillar glass reflections
+    drawLine(Color.White.copy(alpha = 0.12f), Offset(60f, 100f), Offset(54f, 196f), 3f)
+    drawLine(Color.White.copy(alpha = 0.12f), Offset(140f, 100f), Offset(146f, 196f), 3f)
 
     // Roof
-    drawRoundRect(BODY, Offset(36f, 186f), Size(128f, 112f), CornerRadius(14f))
-    drawRoundRect(BODY_LIGHT.copy(alpha = 0.25f), Offset(56f, 196f), Size(88f, 92f), CornerRadius(10f))
+    drawRoundRect(BODY, Offset(36f, 206f), Size(128f, 82f), CornerRadius(14f))
+    drawRoundRect(BODY_LIGHT.copy(alpha = 0.25f), Offset(56f, 214f), Size(88f, 66f), CornerRadius(10f))
 
     // Rear hatch glass with the Prius split (spoiler bar)
     val rg = Path().apply {
-        moveTo(36f, 298f); lineTo(164f, 298f); lineTo(170f, 372f); cubicTo(130f, 380f, 70f, 380f, 30f, 372f); close()
+        moveTo(36f, 288f); lineTo(164f, 288f); lineTo(172f, 392f); cubicTo(130f, 400f, 70f, 400f, 28f, 392f); close()
     }
-    drawPath(rg, Brush.verticalGradient(listOf(GLASS, GLASS_HI), 298f, 380f))
-    drawRect(BODY_DARK, Offset(30f, 350f), Size(140f, 6f))
+    drawPath(rg, Brush.verticalGradient(listOf(GLASS, GLASS_HI), 288f, 400f))
+    // Prius 2 split hatch: spoiler bar across the rear glass
+    drawRoundRect(BODY_DARK, Offset(28f, 360f), Size(144f, 8f), CornerRadius(3f))
 
     // Tailgate area / rear lights
     drawRoundRect(Color(0xFFB0202A), Offset(8f, 404f), Size(34f, 14f), CornerRadius(5f))
@@ -147,7 +151,7 @@ private fun DrawScope.door(left: Boolean, top: Float, bottom: Float, open: Float
     val x = if (left) 3f else 167f
     if (open < 0.01f) return
     val pivot = Offset(if (left) x else x + w, top)
-    val angle = (if (left) 50f else -50f) * open
+    val angle = (if (left) 42f else -42f) * open
     // gap left in the body
     drawRect(Color.Black.copy(alpha = 0.55f * open), Offset(x, top), Size(w, bottom - top))
     rotate(angle, pivot) {
