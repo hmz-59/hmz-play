@@ -53,7 +53,16 @@ class MainActivity : ComponentActivity() {
 
         // Reload the app grid only when an app is installed or removed (not on every resume: faster).
         ContextCompat.registerReceiver(this, object : android.content.BroadcastReceiver() {
-            override fun onReceive(c: android.content.Context, i: Intent) { refreshKey++ }
+            override fun onReceive(c: android.content.Context, i: Intent) {
+                refreshKey++
+                // Waze just installed: put it in place right away (left half), no restart needed.
+                if (i.action == Intent.ACTION_PACKAGE_ADDED && i.data?.schemeSpecificPart == "com.waze" &&
+                    com.hmz.play.data.Split.autoOpen(this@MainActivity) && !isInMultiWindowMode
+                ) {
+                    com.hmz.play.data.Split.autoOpenedThisBoot = true
+                    window.decorView.postDelayed({ com.hmz.play.data.Split.openNavigation(this@MainActivity) }, 1500)
+                }
+            }
         }, android.content.IntentFilter().apply {
             addAction(Intent.ACTION_PACKAGE_ADDED)
             addAction(Intent.ACTION_PACKAGE_REMOVED)
