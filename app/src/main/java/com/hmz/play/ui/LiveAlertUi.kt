@@ -85,7 +85,7 @@ fun LiveAlertOverlay() {
                     Modifier.fillMaxWidth().background(color).padding(horizontal = 28.dp, vertical = 16.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text("$icon  ${al.headline}", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                    Text("$icon  ${al.headline}", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
                     Text(if (left == 0L) "MAINTENANT" else "dans $left min", color = Color.White, fontSize = 30.sp, fontWeight = FontWeight.Black)
                 }
                 Column(Modifier.padding(horizontal = 28.dp, vertical = 20.dp)) {

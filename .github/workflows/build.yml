@@ -8,6 +8,11 @@ on:
 permissions:
   contents: write
 
+# one build at a time, so "latest" is always the newest version
+concurrency:
+  group: build
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest

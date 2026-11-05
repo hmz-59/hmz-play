@@ -1,6 +1,7 @@
 package com.hmz.play.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -63,7 +64,7 @@ fun LiveScreen() {
             PillButton("Actualiser", C.Panel2) { LiveInfo.refreshNow() }
         }
         Spacer(Modifier.padding(4.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(Modifier.horizontalScroll(androidx.compose.foundation.rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             PillButton("Tout", if (filter == null) C.Blue else C.Panel2) { filter = null }
             PillButton("🚄 Trains", if (filter == LiveItem.Kind.TRAIN) C.Blue else C.Panel2) { filter = LiveItem.Kind.TRAIN }
             PillButton("✈️ Vols", if (filter == LiveItem.Kind.FLIGHT) C.Blue else C.Panel2) { filter = LiveItem.Kind.FLIGHT }

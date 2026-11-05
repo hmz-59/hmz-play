@@ -53,6 +53,14 @@ object LiveInfo {
         "pierre-mauroy", "pierre mauroy", "decathlon arena", "zénith", "zenith", "grand palais", "stade bollaert",
         "aéronef", "aeronef", "sébastopol", "sebastopol", "opéra de lille", "théâtre du nord", "le colisée",
         "stab vélodrome", "lille grand palais", "braderie", "marché de noël", "stade lille métropole",
+        "splendid", "zéphyr", "zephyr", "tripostal", "casino barrière", "kursaal", "la condition publique",
+        "le grand bleu", "théâtre de l'idéal", "colisée", "flow -", "gare saint sauveur",
+    )
+
+    private val NOISE = listOf(
+        "agence ", "france travail", "recrutement", "recrute", "réunion d'information", "information collective",
+        "rendez-vous inscription", "atelier", "permanence", "formation", "poei", "poec", "job dating", "forum de l'emploi",
+        "duoday", "bilan prévention", "mission locale", "crèche", "médiathèque", "bibliothèque",
     )
 
     private fun p(ctx: Context) = ctx.getSharedPreferences("live", Context.MODE_PRIVATE)
@@ -205,14 +213,22 @@ object LiveInfo {
             val begin = runCatching {
                 java.time.OffsetDateTime.parse(e.getString("firstdate_begin")).atZoneSameInstant(zone).toLocalDateTime()
             }.getOrNull() ?: return@mapNotNull null
-            val end = runCatching {
+            val endRaw = runCatching {
                 java.time.OffsetDateTime.parse(e.getString("lastdate_end")).atZoneSameInstant(zone).toLocalDateTime()
             }.getOrNull()
             val place = listOf(e.optString("location_name"), e.optString("location_city")).filter { it.isNotBlank() }.joinToString(", ")
             val big = BIG_VENUES.any { place.lowercase().contains(it) || e.optString("title_fr").lowercase().contains(it) }
+            val title = e.optString("title_fr")
+            // job-centre sessions, workshops, info meetings: no crowd, no rides
+            if (NOISE.any { title.lowercase().contains(it) || place.lowercase().contains(it) }) return@mapNotNull null
             val c = e.optJSONObject("location_coordinates")
-            // Multi-day events (expos…) only matter when they're big.
-            if (end != null && java.time.Duration.between(begin, end).toHours() > 12 && !big) return@mapNotNull null
+            // Multi-day events (expos, tours…) only matter when they're big; their range covers every date,
+            // so the evening's show is taken as starting at the first time and lasting about 2 h 30.
+            var end = endRaw
+            if (end != null && java.time.Duration.between(begin, end).toHours() > 12) {
+                if (!big) return@mapNotNull null
+                end = begin.plusMinutes(150)
+            }
             LiveItem(
                 LiveItem.Kind.EVENT, if (begin.toLocalDate().isBefore(today)) end ?: begin else begin,
                 e.optString("title_fr").ifBlank { "Événement" }, place,
@@ -230,6 +246,9 @@ object LiveInfo {
         val limit = LocalDateTime.now().plusDays(2)
         return (0 until arr.length()).mapNotNull { i ->
             val e = arr.getJSONObject(i)
+            // the free feed also lists away matches: keep only matches played at home (Lille stadium)
+            val home = e.optString("idHomeTeam") == "133711" || e.optString("strHomeTeam").contains("Lille", true)
+            if (!home) return@mapNotNull null
             val ts = e.optString("strTimestamp").ifBlank { e.optString("dateEvent") + "T" + e.optString("strTime").ifBlank { "20:00:00" } }
             val utc = runCatching { java.time.OffsetDateTime.parse(ts) }
                 .recoverCatching { java.time.LocalDateTime.parse(ts.take(19)).atOffset(java.time.ZoneOffset.UTC) }

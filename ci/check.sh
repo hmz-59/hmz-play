@@ -26,12 +26,12 @@ for s in APPS MUSIC NOTIFS FUEL VTC LIVE SETTINGS; do
   shot "02_$s"
 done
 # lower part of settings
-adb shell input swipe 700 600 700 150 400; sleep 2; shot 03_SETTINGS_2
-adb shell input swipe 700 600 700 150 400; sleep 2; shot 03_SETTINGS_3
-adb shell input swipe 700 600 700 150 400; sleep 2; shot 03_SETTINGS_4
-adb shell input swipe 700 600 700 150 400; sleep 2; shot 03_SETTINGS_5
+adb shell input swipe 1000 620 1000 120 500; sleep 2; shot 03_SETTINGS_2
+adb shell input swipe 1000 620 1000 120 500; sleep 2; shot 03_SETTINGS_3
+adb shell input swipe 1000 620 1000 120 500; sleep 2; shot 03_SETTINGS_4
+adb shell input swipe 1000 620 1000 120 500; sleep 2; shot 03_SETTINGS_5
 adb shell am start -n $PKG/.MainActivity --es hmz_screen VTC; sleep 4
-adb shell input swipe 700 600 700 150 400; sleep 2; shot 03_VTC_2
+adb shell input swipe 1000 620 1000 120 500; sleep 2; shot 03_VTC_2
 # Affluence again (data had time to load)
 adb shell am start -n $PKG/.MainActivity --es hmz_screen LIVE; sleep 20; shot 04_LIVE_loaded
 adb shell am start -n $PKG/.MainActivity --es hmz_screen FUEL; sleep 10; shot 04_FUEL_loaded

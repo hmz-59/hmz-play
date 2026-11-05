@@ -26,6 +26,11 @@ curl -sG "https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/prix-d
   | jq -c '"total=\(.total_count)", (.results[]? | {adresse, ville, geom, e10_prix, gazole_prix, sp98_prix})'
 p "Overpass speed limit"
 curl -sG "https://overpass-api.de/api/interpreter" --data-urlencode "data=[out:json][timeout:8];way(around:25,50.6292,3.0573)[highway][maxspeed];out tags 3;" -w "\nHTTP %{http_code}\n" | head -c 600; echo
+p "Overpass with the app's User-Agent (GET, then POST)"
+Q='[out:json][timeout:8];way(around:25,50.6292,3.0573)[highway][maxspeed];out tags 3;'
+curl -sG -A "HMZPlay/1.0 (car head unit)" "https://overpass-api.de/api/interpreter" --data-urlencode "data=$Q" -w "\nHTTP %{http_code}\n" | head -c 400; echo
+curl -s -A "HMZPlay/1.0 (car head unit)" "https://overpass-api.de/api/interpreter" --data-urlencode "data=$Q" -w "\nHTTP %{http_code}\n" | head -c 400; echo
+curl -s -A "HMZPlay/1.0 (car head unit)" "https://overpass.kumi.systems/api/interpreter" --data-urlencode "data=$Q" -w "\nHTTP %{http_code}\n" | head -c 400; echo
 p "Updater (GitHub latest release)"
 curl -s https://api.github.com/repos/hmz-59/hmz-play/releases/latest | jq -r '.tag_name, (.assets[]?.name)'
 p "Waze page on APKMirror (HTTP code; 403 = anti-robot, page exists for humans)"
