@@ -57,6 +57,7 @@ object Drive {
         } else {
             p.edit().putString("day", today).putFloat("km", 0f).putLong("sec", 0).apply()
         }
+        totalKm(c)
         lat = p.getFloat("lat", lat.toFloat()).toDouble()
         lon = p.getFloat("lon", lon.toFloat()).toDouble()
         runCatching {
@@ -89,12 +90,15 @@ object Drive {
         if (prev != null && loc.accuracy < 30f) {
             val dt = (loc.time - prev.time) / 1000
             if (speed > 4f && dt in 1..10) {
-                km += prev.distanceTo(loc) / 1000.0
+                val dKm = prev.distanceTo(loc) / 1000.0
+                km += dKm
+                totalKmMem += dKm
                 sec += dt
             }
         }
         last = loc
         BlackBox.record(loc, speed.toInt())
+        app?.let { SpeedLimit.onFix(it, loc, speed.toInt()) }
         _state.value = DriveDay(speed.toInt().coerceAtLeast(0), km, sec, true)
         if (speed > 5f) _lastMoving.value = android.os.SystemClock.elapsedRealtime()
         app?.let { SpeedVolume.onSpeed(it, speed.toInt()) }
@@ -103,9 +107,18 @@ object Drive {
             lastSave = now
             app?.getSharedPreferences("history", Context.MODE_PRIVATE)?.edit()
                 ?.putString(today, "%.2f;%d".format(java.util.Locale.US, km, sec))?.apply()
+            p?.edit()?.putFloat("total_km", totalKmMem.toFloat())
             p?.edit()?.putFloat("km", km.toFloat())?.putLong("sec", sec)
                 ?.putFloat("lat", lat.toFloat())?.putFloat("lon", lon.toFloat())?.apply()
         }
+    }
+
+    private var totalKmMem = -1.0
+
+    /** All km driven with HMZ Play running (GPS), used by maintenance reminders. */
+    fun totalKm(ctx: Context): Double {
+        if (totalKmMem < 0) totalKmMem = ctx.getSharedPreferences("drive", Context.MODE_PRIVATE).getFloat("total_km", 0f).toDouble()
+        return totalKmMem
     }
 
     /** Last days (newest first): date, km, seconds of driving. */

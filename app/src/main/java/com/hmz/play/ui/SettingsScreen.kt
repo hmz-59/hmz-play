@@ -239,6 +239,62 @@ fun SettingsScreen(onRequestPermissions: () -> Unit) {
         }
 
         Spacer(Modifier.height(14.dp))
+        // Maintenance + speed-limit beep
+        var odoText by remember { mutableStateOf(com.hmz.play.data.Maintenance.odometer(ctx)?.toString() ?: "") }
+        var maintItems by remember { mutableStateOf(com.hmz.play.data.Maintenance.items(ctx)) }
+        var beep by remember { mutableStateOf(com.hmz.play.data.SpeedLimit.beepEnabled(ctx)) }
+        Column(Modifier.fillMaxWidth().card().padding(20.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text("Bip si je dépasse la limitation", color = C.Text, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                    Text("Limitation de la route d'après OpenStreetMap, affichée à côté du compteur.", color = C.Sub, fontSize = 15.sp)
+                }
+                Switch(
+                    checked = beep,
+                    onCheckedChange = { beep = it; com.hmz.play.data.SpeedLimit.setBeep(ctx, it) },
+                    colors = SwitchDefaults.colors(checkedTrackColor = C.Green, checkedThumbColor = Color.White),
+                )
+            }
+            Spacer(Modifier.height(16.dp))
+            Text("Entretien", color = C.Text, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+            Text("Indique le kilométrage du compteur une fois, HMZ Play ajoute ensuite les km parcourus.", color = C.Sub, fontSize = 15.sp)
+            Spacer(Modifier.height(8.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                androidx.compose.foundation.text.BasicTextField(
+                    value = odoText,
+                    onValueChange = { v -> odoText = v.filter { it.isDigit() }.take(7) },
+                    singleLine = true,
+                    textStyle = androidx.compose.ui.text.TextStyle(color = C.Text, fontSize = 20.sp),
+                    cursorBrush = androidx.compose.ui.graphics.SolidColor(C.Blue),
+                    keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
+                    modifier = Modifier.width(160.dp).clip(RoundedCornerShape(12.dp)).background(C.Panel2).padding(12.dp),
+                )
+                Text("  km", color = C.Sub, fontSize = 17.sp)
+                Spacer(Modifier.width(12.dp))
+                PillButton("Enregistrer", C.Blue) {
+                    odoText.toIntOrNull()?.let { com.hmz.play.data.Maintenance.setOdometer(ctx, it); maintItems = com.hmz.play.data.Maintenance.items(ctx) }
+                }
+            }
+            maintItems.forEach { m ->
+                Spacer(Modifier.height(10.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text(m.label, color = C.Text, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                        val parts = listOfNotNull(
+                            m.dueInKm?.let { if (it <= 0) "à faire maintenant" else "dans $it km" },
+                            m.dueDate?.let { "avant le ${it.dayOfMonth}/${it.monthValue}/${it.year}" },
+                        )
+                        Text(
+                            if (parts.isEmpty()) "Appuie sur « Fait » après le prochain passage." else parts.joinToString(" · "),
+                            color = if (m.dueInKm != null && m.dueInKm <= 500) C.Orange else C.Sub, fontSize = 14.sp,
+                        )
+                    }
+                    PillButton("Fait", C.Panel2) { com.hmz.play.data.Maintenance.markDone(ctx, m.key); maintItems = com.hmz.play.data.Maintenance.items(ctx) }
+                }
+            }
+        }
+
+        Spacer(Modifier.height(14.dp))
         // Black box
         val marks by com.hmz.play.data.BlackBox.marks.collectAsStateWithLifecycle()
         Column(Modifier.fillMaxWidth().card().padding(20.dp)) {

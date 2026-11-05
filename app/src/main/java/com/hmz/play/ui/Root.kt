@@ -59,7 +59,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
-enum class Screen { HOME, APPS, MUSIC, NOTIFS, SETTINGS }
+enum class Screen { HOME, APPS, MUSIC, NOTIFS, SETTINGS, FUEL }
 
 @Composable
 fun CarRoot(locationGranted: Boolean, refreshKey: Int, onRequestPermissions: () -> Unit) {
@@ -166,6 +166,7 @@ private fun Screens(
             Screen.MUSIC -> NowPlayingScreen()
             Screen.NOTIFS -> NotificationsScreen()
             Screen.SETTINGS -> SettingsScreen(onRequestPermissions)
+            Screen.FUEL -> FuelScreen()
         }
     }
 }

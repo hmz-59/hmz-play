@@ -112,6 +112,17 @@ object Split {
         openNavigation(ctx, intent = intent)
     }
 
+    /** Guidance to exact coordinates (fuel station…). */
+    fun navigateToCoords(ctx: Context, lat: Double, lon: Double, label: String) {
+        val waze = ctx.packageManager.getLaunchIntentForPackage("com.waze") != null
+        val intent = if (waze) {
+            Intent(Intent.ACTION_VIEW, Uri.parse("https://waze.com/ul?ll=$lat,$lon&navigate=yes")).setPackage("com.waze")
+        } else {
+            Intent(Intent.ACTION_VIEW, Uri.parse("geo:$lat,$lon?q=$lat,$lon(${Uri.encode(label)})"))
+        }
+        openNavigation(ctx, intent = intent)
+    }
+
     fun recents(ctx: Context): List<String> =
         prefs(ctx).getString("recents", "").orEmpty().split('\n').filter { it.isNotBlank() }
 

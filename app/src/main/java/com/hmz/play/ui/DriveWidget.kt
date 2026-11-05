@@ -21,6 +21,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.size
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -37,10 +39,23 @@ fun DriveWidget(modifier: Modifier = Modifier) {
     val speed by animateIntAsState(d.speedKmh, tween(600), label = "speed")
     val ctx = androidx.compose.ui.platform.LocalContext.current
     val limit = androidx.compose.runtime.remember { Drive.speedAlert(ctx) }
+    val roadLimit by com.hmz.play.data.SpeedLimit.limit.collectAsStateWithLifecycle()
+    val overRoad = roadLimit != null && d.speedKmh > roadLimit!! + 3
     val over = limit > 0 && d.speedKmh > limit
+    val maint = androidx.compose.runtime.remember { com.hmz.play.data.Maintenance.alert(ctx) }
     Column(modifier.card().padding(horizontal = 18.dp, vertical = 14.dp)) {
         Row(verticalAlignment = Alignment.Bottom) {
-            Text(if (d.hasFix) "$speed" else "–", color = if (over) C.Orange else C.Text, fontSize = 40.sp, fontWeight = FontWeight.Bold)
+            if (roadLimit != null) {
+                androidx.compose.foundation.layout.Box(
+                    Modifier.padding(end = 10.dp, bottom = 4.dp).size(46.dp)
+                        .clip(androidx.compose.foundation.shape.CircleShape).background(androidx.compose.ui.graphics.Color.White)
+                        .border(4.dp, C.Red, androidx.compose.foundation.shape.CircleShape),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text("$roadLimit", color = androidx.compose.ui.graphics.Color.Black, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+            Text(if (d.hasFix) "$speed" else "–", color = if (overRoad) C.Red else if (over) C.Orange else C.Text, fontSize = 40.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.width(6.dp))
             Text("km/h", color = C.Sub, fontSize = 15.sp, modifier = Modifier.padding(bottom = 8.dp))
             Spacer(Modifier.weight(1f))
@@ -61,6 +76,10 @@ fun DriveWidget(modifier: Modifier = Modifier) {
                 val m = d.movingSec / 60
                 Text("aujourd'hui · ${m / 60} h ${"%02d".format(m % 60)}", color = C.Sub, fontSize = 13.sp)
             }
+        }
+        if (maint != null) {
+            Spacer(Modifier.height(6.dp))
+            Text("🔧 $maint", color = C.Orange, fontSize = 14.sp, fontWeight = FontWeight.Medium)
         }
         AnimatedVisibility(g != null) {
             val gg = g ?: return@AnimatedVisibility
