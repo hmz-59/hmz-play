@@ -159,3 +159,35 @@ private fun KeyField(label: String, value: String, onChange: (String) -> Unit) {
         }
     }
 }
+
+/** GPS check: tells whether the problem is the setting, the antenna or just the sky. */
+@Composable
+fun GpsCard() {
+    val ctx = LocalContext.current
+    val h by com.hmz.play.data.GpsInfo.health.collectAsStateWithLifecycle()
+    androidx.compose.runtime.LaunchedEffect(Unit) { com.hmz.play.data.GpsInfo.start(ctx); com.hmz.play.data.GpsInfo.refreshSettings(ctx) }
+    val (color, verdict) = when {
+        !h.enabled -> C.Red to "La localisation GPS est désactivée dans Android. Appuie sur « Réglages position » et active-la en mode « Haute précision » ou « Appareil seul »."
+        h.used >= 4 -> C.Green to "GPS OK : position trouvée avec ${h.used} satellites."
+        h.seen > 0 && h.bestSignal >= 20 -> C.Orange to "Le GPS capte ${h.seen} satellites, il calcule la position… Attends 1 à 3 min à ciel ouvert."
+        h.seen > 0 -> C.Orange to "Signal très faible (${h.seen} satellites, ${"%.0f".format(h.bestSignal)} dB). Antenne GPS mal placée ou mal branchée derrière l'autoradio, ou voiture sous un toit."
+        h.statusEvents -> C.Red to "Le GPS est allumé mais ne voit AUCUN satellite. Si tu es dehors depuis plus de 5 min : l'antenne GPS de l'autoradio n'est probablement pas branchée."
+        else -> C.Orange to "Le GPS démarre… (aucune réponse du récepteur pour l'instant)."
+    }
+    Column(Modifier.fillMaxWidth().card().padding(20.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(12.dp).clip(androidx.compose.foundation.shape.CircleShape).background(color))
+            Spacer(Modifier.width(12.dp))
+            Text("GPS", color = C.Text, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+            PillButton("Réglages position", C.Panel2) {
+                runCatching { ctx.startActivity(android.content.Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)) }
+            }
+        }
+        Spacer(Modifier.height(6.dp))
+        Text(verdict, color = C.Text, fontSize = 15.sp)
+        Text(
+            "Mode : ${h.mode} · satellites vus ${h.seen} · utilisés ${h.used} · meilleur signal ${"%.0f".format(h.bestSignal)} dB",
+            color = C.Sub, fontSize = 13.sp,
+        )
+    }
+}

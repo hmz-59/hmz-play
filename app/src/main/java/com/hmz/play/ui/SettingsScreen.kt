@@ -60,6 +60,8 @@ fun SettingsScreen(onRequestPermissions: () -> Unit) {
     ) {
         Text("Réglages", color = C.Text, fontSize = 30.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(16.dp))
+        GpsCard()
+        Spacer(Modifier.height(14.dp))
 
         // Status: iPhone through the car's own Bluetooth (calls + music)
         val carPhone by com.hmz.play.ble.CarBluetooth.connected.collectAsStateWithLifecycle()

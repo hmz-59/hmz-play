@@ -179,6 +179,7 @@ open class MainActivity : ComponentActivity() {
         com.hmz.play.data.WeatherSource.start()
         com.hmz.play.data.Doors.start(this)
         com.hmz.play.data.LiveInfo.start(this)
+        com.hmz.play.data.GpsInfo.start(this)
     }
 
     /** Steering-wheel / head-unit media keys while HMZ Play is on screen. */
