@@ -70,7 +70,8 @@ fun Sidebar(screen: Screen, onNavigate: (Screen) -> Unit) {
         Clock()
         Spacer(Modifier.height(6.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
-            val connected = status == LinkStatus.CONNECTED
+            val carPhone by com.hmz.play.ble.CarBluetooth.connected.collectAsStateWithLifecycle()
+            val connected = status == LinkStatus.CONNECTED || carPhone != null
             Icon(
                 if (connected) Icons.Filled.Bluetooth else Icons.Filled.BluetoothDisabled,
                 null,
@@ -98,7 +99,7 @@ fun Sidebar(screen: Screen, onNavigate: (Screen) -> Unit) {
             recents.forEach { (pkg, icon) ->
                 Image(
                     icon, null,
-                    modifier = Modifier.size(64.dp).clip(RoundedCornerShape(15.dp)).tap { Shell.open(ctx, pkg) },
+                    modifier = Modifier.size(70.dp).clip(RoundedCornerShape(16.dp)).tap { Shell.open(ctx, pkg) },
                 )
             }
         }
@@ -136,7 +137,7 @@ private fun DockButton(
     onClick: () -> Unit,
 ) {
     Box(Modifier.tap(onClick = onClick)) {
-        GlyphTile(icon, color, 64.dp)
+        GlyphTile(icon, color, 70.dp)
         AnimatedVisibility(
             visible = badge > 0,
             enter = scaleIn(),

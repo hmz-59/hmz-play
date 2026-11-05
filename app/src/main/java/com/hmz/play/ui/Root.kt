@@ -161,7 +161,8 @@ private fun CompactLayout(
         ) {
             Clock()
             Spacer(Modifier.width(10.dp))
-            val connected = status == LinkStatus.CONNECTED
+            val carPhone by com.hmz.play.ble.CarBluetooth.connected.collectAsStateWithLifecycle()
+            val connected = status == LinkStatus.CONNECTED || carPhone != null
             Icon(
                 if (connected) Icons.Filled.Bluetooth else Icons.Filled.BluetoothDisabled, null,
                 tint = if (connected) C.Blue else C.Sub, modifier = Modifier.size(16.dp),

@@ -124,7 +124,23 @@ object MediaBridge {
         publish()
     }
 
+    private var wasPlaying = false
+    private var lastActivate = 0L
+
     private fun publish() {
+        publishInner()
+        val now = _info.value.playing
+        val ctx = appCtx
+        if (now && !wasPlaying && ctx != null && Shell.hmzVisible &&
+            SystemClock.elapsedRealtime() - lastActivate > 20_000
+        ) {
+            lastActivate = SystemClock.elapsedRealtime()
+            AudioSource.activate(ctx)
+        }
+        wasPlaying = now
+    }
+
+    private fun publishInner() {
         val c = controller
         if (c == null) {
             _info.value = MediaInfo()

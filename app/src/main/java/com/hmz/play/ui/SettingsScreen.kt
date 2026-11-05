@@ -61,58 +61,21 @@ fun SettingsScreen(onRequestPermissions: () -> Unit) {
         Text("Réglages", color = C.Text, fontSize = 30.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(16.dp))
 
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-            // Status
-            Column(Modifier.weight(1f).card().padding(20.dp)) {
-                val (dot, label) = when (status) {
-                    LinkStatus.CONNECTED -> C.Green to "Connecté à ${phone ?: "l'iPhone"}" + (battery?.let { " · $it %" } ?: "")
-                    LinkStatus.CONNECTING -> C.Blue to "Connexion en cours…"
-                    LinkStatus.WAITING -> C.Orange to "En attente de l'iPhone"
-                    LinkStatus.BLUETOOTH_OFF -> C.Red to "Bluetooth désactivé"
-                    LinkStatus.NEED_PERMISSION -> C.Red to "Autorisations manquantes"
-                }
-                Text("ÉTAT", color = C.Sub, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-                Spacer(Modifier.height(8.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(Modifier.size(12.dp).clip(CircleShape).background(dot))
-                    Spacer(Modifier.width(10.dp))
-                    Text(label, color = C.Text, fontSize = 19.sp, fontWeight = FontWeight.SemiBold)
-                }
-                Spacer(Modifier.height(18.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    if (status == LinkStatus.NEED_PERMISSION) PillButton("Autoriser", C.Blue, onRequestPermissions)
-                    if (status == LinkStatus.BLUETOOTH_OFF) PillButton("Ouvrir Bluetooth", C.Blue) {
-                        ctx.startActivity(Intent(Settings.ACTION_BLUETOOTH_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-                    }
-                    PillButton("Oublier l'iPhone", C.Panel2) { IphoneLink.forgetPhone() }
-                }
-            }
-            // Pairing guide
-            Column(Modifier.weight(1.3f).card().padding(20.dp)) {
-                Text("JUMELER TON IPHONE (une seule fois)", color = C.Sub, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-                Spacer(Modifier.height(10.dp))
-                val until by IphoneLink.pairingUntil.collectAsStateWithLifecycle()
-                val remaining by produceState(0, until) {
-                    while (true) {
-                        value = ((until - android.os.SystemClock.elapsedRealtime()) / 1000).toInt().coerceAtLeast(0)
-                        if (value == 0) break
-                        kotlinx.coroutines.delay(1000)
-                    }
-                }
-                if (remaining > 0) {
-                    Text("Mode jumelage actif : encore $remaining s", color = C.Green, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-                } else {
-                    PillButton("1. Lancer le mode jumelage", C.Blue) { IphoneLink.startPairingMode() }
-                }
-                Spacer(Modifier.height(8.dp))
-                Step(2, "Sur l'iPhone : Réglages → Bluetooth.")
-                Step(3, "Sous « Autres appareils », touche « HMZ Play ».")
-                Step(4, "Accepte le jumelage, puis « Afficher les notifications ».")
-                Spacer(Modifier.height(6.dp))
+        // Status: iPhone through the car's own Bluetooth (calls + music)
+        val carPhone by com.hmz.play.ble.CarBluetooth.connected.collectAsStateWithLifecycle()
+        Row(Modifier.fillMaxWidth().card().padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(12.dp).clip(CircleShape).background(if (carPhone != null) C.Green else C.Orange))
+            Spacer(Modifier.width(12.dp))
+            Column(Modifier.weight(1f)) {
                 Text(
-                    "Ensuite, la connexion se fait toute seule à chaque fois que tu montes dans la voiture.",
-                    color = C.Sub, fontSize = 15.sp,
+                    if (carPhone != null) "Connecté à $carPhone" else "iPhone non connecté au Bluetooth de la voiture",
+                    color = C.Text, fontSize = 19.sp, fontWeight = FontWeight.SemiBold,
                 )
+                Text("Son, musique et appels passent par le Bluetooth de l'autoradio. Rien n'est installé sur l'iPhone.", color = C.Sub, fontSize = 15.sp)
+            }
+            if (status == LinkStatus.NEED_PERMISSION) PillButton("Autoriser", C.Blue, onRequestPermissions)
+            else if (carPhone == null) PillButton("Bluetooth", C.Blue) {
+                ctx.startActivity(Intent(Settings.ACTION_BLUETOOTH_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
             }
         }
 
@@ -194,21 +157,9 @@ fun SettingsScreen(onRequestPermissions: () -> Unit) {
         Spacer(Modifier.height(14.dp))
         // Diagnostic
         val log by IphoneLink.log.collectAsStateWithLifecycle()
-        val bonded = remember(status) { IphoneLink.bondedDevices() }
         Column(Modifier.fillMaxWidth().card().padding(20.dp)) {
-            Text("DIAGNOSTIC (envoie une photo de ce cadre si ça bloque)", color = C.Sub, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+            Text("DIAGNOSTIC", color = C.Sub, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
             Spacer(Modifier.height(8.dp))
-            if (bonded.isNotEmpty()) {
-                Text("Appareils déjà jumelés — touche ton iPhone pour forcer la liaison :", color = C.Text, fontSize = 15.sp)
-                Spacer(Modifier.height(8.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    bonded.take(4).forEach { (name, addr) -> PillButton(name, C.Panel2) { IphoneLink.connectTo(addr) } }
-                }
-                Spacer(Modifier.height(10.dp))
-            } else {
-                Text("Aucun appareil jumelé visible par Android.", color = C.Sub, fontSize = 15.sp)
-                Spacer(Modifier.height(8.dp))
-            }
             if (log.isEmpty()) Text("Aucun événement pour l'instant.", color = C.Sub, fontSize = 14.sp)
             log.take(16).forEach { line ->
                 Text(line, color = C.Text.copy(alpha = 0.85f), fontSize = 14.sp, fontFamily = FontFamily.Monospace)

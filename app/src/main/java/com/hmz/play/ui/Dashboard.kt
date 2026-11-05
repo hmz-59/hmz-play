@@ -241,11 +241,11 @@ fun NowPlayingCard(modifier: Modifier, onOpen: () -> Unit) {
         ProgressBar(track)
         Spacer(Modifier.weight(1f))
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
-            ControlButton(Icons.Filled.SkipPrevious, 40.dp) { IphoneLink.command(Cmd.PREVIOUS) }
-            ControlButton(if (track.playing) Icons.Filled.Pause else Icons.Filled.PlayArrow, 48.dp) {
+            ControlButton(Icons.Filled.SkipPrevious, 46.dp) { IphoneLink.command(Cmd.PREVIOUS) }
+            ControlButton(if (track.playing) Icons.Filled.Pause else Icons.Filled.PlayArrow, 56.dp) {
                 IphoneLink.command(Cmd.TOGGLE)
             }
-            ControlButton(Icons.Filled.SkipNext, 40.dp) { IphoneLink.command(Cmd.NEXT) }
+            ControlButton(Icons.Filled.SkipNext, 46.dp) { IphoneLink.command(Cmd.NEXT) }
         }
     }
 }
@@ -291,8 +291,8 @@ fun InfoCard(modifier: Modifier, onNavigate: (Screen) -> Unit) {
                 Quad(Icons.Filled.PhoneIphone, C.Green, carPhone!!, "Connecté · appels et musique")
             } else when (status) {
                 LinkStatus.CONNECTED -> Quad(Icons.Filled.PhoneIphone, C.Green, phone ?: "iPhone connecté", battery?.let { "Connecté · batterie $it %" } ?: "Connecté")
-                LinkStatus.CONNECTING -> Quad(Icons.Filled.Bluetooth, C.Blue, "Connexion…", "Liaison avec l'iPhone en cours")
-                LinkStatus.WAITING -> Quad(Icons.Filled.Bluetooth, C.Orange, "En attente de l'iPhone", "Touche ici pour le jumeler")
+                LinkStatus.CONNECTING -> Quad(Icons.Filled.Bluetooth, C.Orange, "iPhone non connecté", "Active le Bluetooth de l'iPhone")
+                LinkStatus.WAITING -> Quad(Icons.Filled.Bluetooth, C.Orange, "iPhone non connecté", "Active le Bluetooth de l'iPhone")
                 LinkStatus.BLUETOOTH_OFF -> Quad(Icons.Filled.BluetoothDisabled, C.Red, "Bluetooth désactivé", "Active le Bluetooth de la tablette")
                 LinkStatus.NEED_PERMISSION -> Quad(Icons.Filled.BluetoothDisabled, C.Red, "Autorisations requises", "Touche ici pour les accorder")
             }

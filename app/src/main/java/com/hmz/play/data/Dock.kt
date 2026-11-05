@@ -101,7 +101,7 @@ class Dock(private val svc: SplitService) {
     private fun observe() {
         job?.cancel()
         job = scope.launch {
-            combine(IphoneLink.status, IphoneLink.battery, IphoneLink.track) { st, bat, tr -> Triple(st, bat, tr) }
+            combine(IphoneLink.status, IphoneLink.battery, IphoneLink.track, com.hmz.play.ble.CarBluetooth.connected) { st, bat, tr, car -> Triple(if (car != null) com.hmz.play.ble.LinkStatus.CONNECTED else st, bat, tr) }
                 .collect { (st, bat, tr) ->
                     val connected = st == com.hmz.play.ble.LinkStatus.CONNECTED
                     status.text = if (connected) (bat?.let { "$it %" } ?: "iPhone") else "—"
