@@ -28,6 +28,7 @@ import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Navigation
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.LocalGasStation
+import androidx.compose.material.icons.filled.LocalTaxi
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -64,6 +65,7 @@ fun AppGrid(apps: List<AppEntry>, onNavigate: (Screen) -> Unit) {
         GridItem.Builtin("Itinéraire", Icons.Filled.Navigation, C.Blue) { Split.openNavigation(ctx) },
         GridItem.Builtin("Musique", Icons.Filled.MusicNote, C.Pink) { onNavigate(Screen.MUSIC) },
         GridItem.Builtin("Messages", Icons.AutoMirrored.Filled.Chat, C.Green) { onNavigate(Screen.NOTIFS) },
+        GridItem.Builtin("Courses", Icons.Filled.LocalTaxi, Color(0xFFD4B26A)) { onNavigate(Screen.VTC) },
         GridItem.Builtin("Carburant", Icons.Filled.LocalGasStation, C.Orange) { onNavigate(Screen.FUEL) },
         GridItem.Builtin("Réglages", Icons.Filled.Settings, Color(0xFF636366)) { onNavigate(Screen.SETTINGS) },
     )

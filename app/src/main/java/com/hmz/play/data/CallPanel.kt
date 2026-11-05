@@ -74,6 +74,7 @@ class CallPanel(private val svc: SplitService) {
         if (root == null) build()
         name.text = c.label
         if (c.name != null) name.text = "${c.name}\n${c.number}".trim()
+        if (Vtc.active) name.text = "Appel" // passenger on board: no name or number on screen
         buttons.removeAllViews()
         main.removeCallbacks(tick)
         when {

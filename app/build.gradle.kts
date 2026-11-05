@@ -73,4 +73,5 @@ dependencies {
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
     implementation("org.osmdroid:osmdroid-android:6.1.20")
+    implementation("com.google.zxing:core:3.5.3")
 }

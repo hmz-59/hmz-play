@@ -105,6 +105,8 @@ fun Sidebar(screen: Screen, onNavigate: (Screen) -> Unit) {
             }
         }
 
+        RideButton(compact = true)
+        Spacer(Modifier.height(12.dp))
         Spacer(Modifier.weight(1f))
 
         // The "home" button: dashboard <-> app grid, like the CarPlay one.

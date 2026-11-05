@@ -65,6 +65,7 @@ fun NotificationBanner(compact: Boolean = false, onOpen: () -> Unit) {
 
     LaunchedEffect(Unit) {
         IphoneLink.banners.collect {
+            if (com.hmz.play.data.Vtc.active) return@collect // passenger on board: no personal messages on screen
             current = it
             last = it
         }

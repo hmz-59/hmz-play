@@ -59,6 +59,8 @@ fun DriveWidget(modifier: Modifier = Modifier) {
             Spacer(Modifier.width(6.dp))
             Text("km/h", color = C.Sub, fontSize = 15.sp, modifier = Modifier.padding(bottom = 8.dp))
             Spacer(Modifier.weight(1f))
+            RideButton(compact = true)
+            Spacer(Modifier.width(8.dp))
             Text(
                 "Flash ?",
                 color = androidx.compose.ui.graphics.Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold,

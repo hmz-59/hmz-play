@@ -59,7 +59,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
-enum class Screen { HOME, APPS, MUSIC, NOTIFS, SETTINGS, FUEL }
+enum class Screen { HOME, APPS, MUSIC, NOTIFS, SETTINGS, FUEL, VTC }
 
 @Composable
 fun CarRoot(locationGranted: Boolean, refreshKey: Int, onRequestPermissions: () -> Unit) {
@@ -136,8 +136,12 @@ fun CarRoot(locationGranted: Boolean, refreshKey: Int, onRequestPermissions: () 
         NotificationBanner(compact = compact, onOpen = { screen = Screen.NOTIFS })
         DestinationSheet()
         UpdateBanner()
-        ParkedOverlay()
+        if (!com.hmz.play.data.Vtc.active) ParkedOverlay()
+        RideBar()
         DoorAlert()
+        WelcomeCard()
+        RideStartSheet()
+        RideEndSheet()
         CallOverlay()
     }
 }
@@ -168,6 +172,7 @@ private fun Screens(
             Screen.NOTIFS -> NotificationsScreen()
             Screen.SETTINGS -> SettingsScreen(onRequestPermissions)
             Screen.FUEL -> FuelScreen()
+            Screen.VTC -> VtcScreen()
         }
     }
 }
