@@ -129,6 +129,7 @@ class MainActivity : ComponentActivity() {
         when (i.getStringExtra("hmz_demo")) {
             "alert" -> com.hmz.play.data.LiveAlerts.demo()
             "doors" -> com.hmz.play.data.Doors.demo()
+            "nav" -> com.hmz.play.data.Split.navigateTo(this, "Gare Lille Europe")
             "sign" -> com.hmz.play.ui.VtcState.signName = "M. Dupont"
             "endofday" -> com.hmz.play.ui.VtcState.endOfDayOpen = true
             "close" -> { com.hmz.play.ui.VtcState.signName = null; com.hmz.play.ui.VtcState.endOfDayOpen = false; com.hmz.play.data.LiveAlerts.dismiss() }

@@ -7,6 +7,7 @@ mkdir -p $OUT
 shot() { adb exec-out screencap -p > "$OUT/$1.png"; }
 adb wait-for-device
 adb shell wm size 1280x720
+adb shell settings put system accelerometer_rotation 0
 adb shell wm density 160
 adb shell settings put system user_rotation 1
 adb emu geo fix 3.0600 50.6300
@@ -25,15 +26,17 @@ for s in APPS MUSIC NOTIFS FUEL VTC LIVE SETTINGS; do
   shot "02_$s"
 done
 # lower part of settings
-adb shell input swipe 800 600 800 150 400; sleep 2; shot 03_SETTINGS_2
-adb shell input swipe 800 600 800 150 400; sleep 2; shot 03_SETTINGS_3
-adb shell input swipe 800 600 800 150 400; sleep 2; shot 03_SETTINGS_4
-adb shell input swipe 800 600 800 150 400; sleep 2; shot 03_SETTINGS_5
+adb shell input swipe 700 600 700 150 400; sleep 2; shot 03_SETTINGS_2
+adb shell input swipe 700 600 700 150 400; sleep 2; shot 03_SETTINGS_3
+adb shell input swipe 700 600 700 150 400; sleep 2; shot 03_SETTINGS_4
+adb shell input swipe 700 600 700 150 400; sleep 2; shot 03_SETTINGS_5
 adb shell am start -n $PKG/.MainActivity --es hmz_screen VTC; sleep 4
-adb shell input swipe 800 600 800 150 400; sleep 2; shot 03_VTC_2
+adb shell input swipe 700 600 700 150 400; sleep 2; shot 03_VTC_2
 # Affluence again (data had time to load)
 adb shell am start -n $PKG/.MainActivity --es hmz_screen LIVE; sleep 20; shot 04_LIVE_loaded
 adb shell am start -n $PKG/.MainActivity --es hmz_screen FUEL; sleep 10; shot 04_FUEL_loaded
+adb shell am start -n $PKG/.MainActivity --es hmz_demo nav; sleep 12; shot 09_nav_destination
+adb shell am start -n $PKG/.MainActivity --es hmz_screen HOME; sleep 3
 for d in alert sign endofday; do
   adb shell am start -n $PKG/.MainActivity --es hmz_screen HOME --es hmz_demo $d
   sleep 3; shot "05_demo_$d"
