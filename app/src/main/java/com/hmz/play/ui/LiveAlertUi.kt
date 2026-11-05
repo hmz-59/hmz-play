@@ -44,9 +44,9 @@ import com.hmz.play.data.Split
 import java.time.Duration
 import java.time.LocalDateTime
 
-private const val SHOW_MS = 25_000
+private const val SHOW_MS = 10_000
 
-/** Big, readable reminder: what, exact time, where, in how long. Stays 25 s, tap OK to close. */
+/** Big, readable reminder: what, exact time, where, in how long. Stays 10 s, tap OK to close. */
 @Composable
 fun LiveAlertOverlay() {
     val ctx = LocalContext.current
