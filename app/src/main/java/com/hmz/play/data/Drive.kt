@@ -49,6 +49,7 @@ object Drive {
         val c = ctx.applicationContext
         val lm = c.getSystemService(LocationManager::class.java) ?: return
         app = c
+        BlackBox.start(c)
         val p = prefs()!!
         val today = LocalDate.now().toString()
         if (p.getString("day", null) == today) {
@@ -93,6 +94,7 @@ object Drive {
             }
         }
         last = loc
+        BlackBox.record(loc, speed.toInt())
         _state.value = DriveDay(speed.toInt().coerceAtLeast(0), km, sec, true)
         if (speed > 5f) _lastMoving.value = android.os.SystemClock.elapsedRealtime()
         app?.let { SpeedVolume.onSpeed(it, speed.toInt()) }

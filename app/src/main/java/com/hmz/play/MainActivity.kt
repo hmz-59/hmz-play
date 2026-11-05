@@ -88,6 +88,7 @@ class MainActivity : ComponentActivity() {
     override fun onStop() {
         super.onStop()
         com.hmz.play.data.Backup.save(this)
+        com.hmz.play.data.BlackBox.flush()
         Shell.hmzVisible = false
         SplitService.instance?.refresh()
     }

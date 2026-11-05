@@ -239,6 +239,52 @@ fun SettingsScreen(onRequestPermissions: () -> Unit) {
         }
 
         Spacer(Modifier.height(14.dp))
+        // Black box
+        val marks by com.hmz.play.data.BlackBox.marks.collectAsStateWithLifecycle()
+        Column(Modifier.fillMaxWidth().card().padding(20.dp)) {
+            Text("Boîte noire", color = C.Text, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+            Text(
+                "Ta vitesse GPS est enregistrée chaque seconde (30 jours, uniquement sur l'autoradio). Après un flash, appuie sur « Flash ? » : ta vitesse des 30 secondes d'avant s'affiche ici.",
+                color = C.Sub, fontSize = 15.sp,
+            )
+            if (marks.isEmpty()) {
+                Spacer(Modifier.height(8.dp))
+                Text("Aucun moment enregistré.", color = C.Sub, fontSize = 15.sp)
+            }
+            val tf = java.text.SimpleDateFormat("EEE d MMM · HH:mm:ss", java.util.Locale.FRANCE)
+            marks.forEach { m ->
+                Spacer(Modifier.height(12.dp))
+                Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(C.Panel2).padding(14.dp)) {
+                    Text(tf.format(java.util.Date(m.time)), color = C.Text, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                    if (m.speedAtMark < 0) {
+                        Text("Pas de signal GPS à ce moment-là.", color = C.Sub, fontSize = 15.sp)
+                    } else {
+                        Text(
+                            "Au moment du clic : ${m.speedAtMark} km/h · max sur les 30 s d'avant : ${m.maxBefore} km/h",
+                            color = C.Text, fontSize = 15.sp,
+                        )
+                        Text(
+                            m.samples.joinToString("   ") { (s, v) -> "-${s}s : $v" },
+                            color = C.Sub, fontSize = 14.sp, fontFamily = FontFamily.Monospace,
+                        )
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        if (m.speedAtMark >= 0) PillButton("Voir l'endroit", C.Blue) {
+                            runCatching {
+                                ctx.startActivity(
+                                    Intent(Intent.ACTION_VIEW, android.net.Uri.parse("geo:${m.lat},${m.lon}?q=${m.lat},${m.lon}(Flash)"))
+                                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                                )
+                            }
+                        }
+                        PillButton("Supprimer", C.Panel) { com.hmz.play.data.BlackBox.deleteMark(m.time) }
+                    }
+                }
+            }
+        }
+
+        Spacer(Modifier.height(14.dp))
         // Diagnostic
         val log by IphoneLink.log.collectAsStateWithLifecycle()
         Column(Modifier.fillMaxWidth().card().padding(20.dp)) {

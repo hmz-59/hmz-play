@@ -19,6 +19,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.background
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -42,6 +44,18 @@ fun DriveWidget(modifier: Modifier = Modifier) {
             Spacer(Modifier.width(6.dp))
             Text("km/h", color = C.Sub, fontSize = 15.sp, modifier = Modifier.padding(bottom = 8.dp))
             Spacer(Modifier.weight(1f))
+            Text(
+                "Flash ?",
+                color = androidx.compose.ui.graphics.Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold,
+                modifier = Modifier
+                    .padding(end = 12.dp, bottom = 6.dp)
+                    .clip(androidx.compose.foundation.shape.RoundedCornerShape(50)).background(C.Red)
+                    .tap(0.9f) {
+                        com.hmz.play.data.BlackBox.mark()
+                        android.widget.Toast.makeText(ctx, "Moment enregistré : ta vitesse est dans Réglages > Boîte noire", android.widget.Toast.LENGTH_LONG).show()
+                    }
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+            )
             Column(horizontalAlignment = Alignment.End) {
                 Text("%.1f km".format(d.km), color = C.Text, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
                 val m = d.movingSec / 60
