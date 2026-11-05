@@ -17,8 +17,15 @@ adb shell settings put secure accessibility_enabled 1
 adb shell cmd notification allow_listener $PKG/$PKG.data.MediaListener
 adb shell cmd package set-home-activity $PKG/.MainActivity
 adb logcat -c
-adb shell am start -n $PKG/.MainActivity
+# "Son garanti" first (the Settings app plays the head unit's Bluetooth app)
+adb shell am start -n $PKG/.MainActivity --es hmz_demo soundapp --es hmz_pkg com.android.settings
 sleep 20
+adb shell input keyevent KEYCODE_HOME; sleep 8; shot 10_soundmode
+adb shell dumpsys activity activities | grep -E "mResumedActivity" > $OUT/soundmode.txt
+adb shell input tap 640 360; sleep 2; shot 10b_soundmode_tap
+adb shell am start -n $PKG/.MainActivity --es hmz_demo soundapp --es hmz_pkg none.pkg; sleep 2
+adb shell am start -n $PKG/.MainActivity
+sleep 10
 adb emu geo fix 3.0600 50.6300
 shot 01_home
 for s in APPS MUSIC NOTIFS FUEL VTC LIVE SETTINGS; do
@@ -48,13 +55,6 @@ done
 adb shell am start -n $PKG/.MainActivity --es hmz_demo doors; sleep 1; shot 05_demo_doors
 sleep 10
 adb shell am start -n $PKG/.MainActivity --es hmz_screen HOME; sleep 15; shot 06_home_after
-# "Son garanti": the Settings app plays the role of the head unit's Bluetooth app
-adb shell am start -n $PKG/.MainActivity --es hmz_demo soundapp --es hmz_pkg com.android.settings; sleep 3
-adb shell input keyevent KEYCODE_HOME; sleep 8; shot 10_soundmode
-adb shell dumpsys activity activities | grep -E "mResumedActivity" > $OUT/soundmode.txt
-adb shell am start -n $PKG/.MainActivity --es hmz_screen SETTINGS; sleep 6; shot 11_soundmode_settings
-adb shell dumpsys activity activities | grep -E "mResumedActivity" >> $OUT/soundmode.txt
-adb shell am start -n $PKG/.MainActivity --es hmz_demo soundapp --es hmz_pkg none.pkg; sleep 2
 # open another app to see the dock (CarPlay bar)
 adb shell am start -a android.settings.SETTINGS; sleep 4; shot 07_dock_over_other_app
 adb shell input keyevent KEYCODE_HOME; sleep 4; shot 08_after_home_key

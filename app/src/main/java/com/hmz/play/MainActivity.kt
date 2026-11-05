@@ -97,10 +97,7 @@ open class MainActivity : ComponentActivity() {
     override fun onStart() {
         super.onStart()
         Shell.hmzVisible = true
-        // Back on HMZ Play (home button…): if the sound mode runs, show the layer over the Bluetooth app.
-        if (javaClass == MainActivity::class.java && requiredPermissions().all { granted(it) }) {
-            window.decorView.post { com.hmz.play.data.SoundMode.enter(this) }
-        }
+        enterSoundMode()
         SplitService.instance?.refresh()
     }
 
@@ -133,6 +130,14 @@ open class MainActivity : ComponentActivity() {
         super.onNewIntent(intent)
         // Pressing "home" while already here: nothing to do, the UI stays on its current screen.
         handleExtras(intent)
+        enterSoundMode() // home button pressed while HMZ Play was already in front
+    }
+
+    /** Back on HMZ Play (home button…): if "son garanti" runs, show HMZ as a layer over the Bluetooth app. */
+    private fun enterSoundMode() {
+        if (javaClass != MainActivity::class.java || isInMultiWindowMode) return
+        if (!requiredPermissions().all { granted(it) }) return
+        window.decorView.postDelayed({ com.hmz.play.data.SoundMode.enter(this) }, 300)
     }
 
     /** "hmz_screen" opens a screen, "hmz_demo" shows a demo overlay (used for the automatic checks). */
