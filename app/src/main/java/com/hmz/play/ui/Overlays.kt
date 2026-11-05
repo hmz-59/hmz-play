@@ -115,7 +115,9 @@ fun NotificationBanner(compact: Boolean = false, onOpen: () -> Unit) {
 /** Full-screen incoming call card with answer / decline, sent to the iPhone via ANCS. */
 @Composable
 fun CallOverlay() {
-    val call by IphoneLink.call.collectAsStateWithLifecycle()
+    val rawCall by IphoneLink.call.collectAsStateWithLifecycle()
+    // The floating HMZ call screen (accessibility) already covers calls from the car's Bluetooth.
+    val call = rawCall?.takeIf { !(it.uid < 0 && com.hmz.play.data.Split.serviceEnabled()) }
     var last by remember { mutableStateOf<IncomingCall?>(null) }
     if (call != null) last = call
 

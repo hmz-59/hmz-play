@@ -17,12 +17,14 @@ import com.hmz.play.MainActivity
  */
 class SplitService : AccessibilityService() {
     private var dock: Dock? = null
+    private var callPanel: CallPanel? = null
     private var homes: Set<String> = emptySet()
     private var lastPkg: String? = null
 
     override fun onServiceConnected() {
         instance = this
         dock = Dock(this)
+        callPanel = CallPanel(this).also { it.start() }
         homes = packageManager.queryIntentActivities(
             Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0,
         ).map { it.activityInfo.packageName }.toSet() - packageName
@@ -31,6 +33,8 @@ class SplitService : AccessibilityService() {
     override fun onUnbind(intent: Intent?): Boolean {
         dock?.release()
         dock = null
+        callPanel?.release()
+        callPanel = null
         instance = null
         return super.onUnbind(intent)
     }

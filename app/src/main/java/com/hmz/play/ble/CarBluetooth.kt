@@ -50,6 +50,7 @@ object CarBluetooth {
         if (started) return
         started = true
         val app = ctx.applicationContext
+        appCtx = app
         val adapter = BluetoothAdapter.getDefaultAdapter() ?: return
 
         probe(app, adapter, HEADSET_CLIENT, "Appels (HFP)") { hfp = it }
@@ -94,16 +95,71 @@ object CarBluetooth {
         if (!ok) IphoneLink.note("$label : absent sur cet autoradio")
     }
 
+    /** Current call seen on the car's Bluetooth (null = no call). */
+    data class CallInfo(val number: String, val name: String?, val state: Int, val since: Long) {
+        val incoming get() = state == CALL_STATE_INCOMING || state == CALL_STATE_WAITING
+        val active get() = state == 0
+        val outgoing get() = state == 2 || state == 3
+        val label get() = name ?: number.ifBlank { "Numéro masqué" }
+    }
+
+    private val _call = kotlinx.coroutines.flow.MutableStateFlow<CallInfo?>(null)
+    val call: kotlinx.coroutines.flow.StateFlow<CallInfo?> = _call
+    private var currentCall: Parcelable? = null
+    private var appCtx: Context? = null
+
     private fun onCall(intent: Intent) {
         val call = intent.getParcelableExtra<Parcelable>(EXTRA_CALL) ?: return
         currentDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
         val state = runCatching { call.javaClass.getMethod("getState").invoke(call) as Int }.getOrDefault(-1)
         val number = runCatching { call.javaClass.getMethod("getNumber").invoke(call) as String? }.getOrNull().orEmpty()
-        when (state) {
-            CALL_STATE_INCOMING, CALL_STATE_WAITING ->
-                IphoneLink.setExternalCall(IncomingCall(-1, number.ifBlank { "Appel entrant" }))
-            else -> if (state == CALL_STATE_TERMINATED || state >= 0) IphoneLink.setExternalCall(null)
+        if (state == CALL_STATE_TERMINATED || state < 0) {
+            currentCall = null
+            _call.value = null
+            IphoneLink.setExternalCall(null)
+            return
         }
+        currentCall = call
+        val prev = _call.value
+        val since = if (prev != null && prev.state == state) prev.since else System.currentTimeMillis()
+        _call.value = CallInfo(number, contactName(number), state, since)
+        // The in-app card is only for incoming calls; the floating panel (CallPanel) covers all states.
+        if (state == CALL_STATE_INCOMING || state == CALL_STATE_WAITING) {
+            IphoneLink.setExternalCall(IncomingCall(-1, _call.value!!.label))
+        } else {
+            IphoneLink.setExternalCall(null)
+        }
+    }
+
+    /** Looks the number up in the head unit's contacts (filled by its Bluetooth phonebook sync). */
+    private fun contactName(number: String): String? {
+        val ctx = appCtx ?: return null
+        if (number.isBlank()) return null
+        if (androidx.core.content.ContextCompat.checkSelfPermission(ctx, android.Manifest.permission.READ_CONTACTS) !=
+            android.content.pm.PackageManager.PERMISSION_GRANTED
+        ) return null
+        return runCatching {
+            val uri = android.net.Uri.withAppendedPath(android.provider.ContactsContract.PhoneLookup.CONTENT_FILTER_URI, android.net.Uri.encode(number))
+            ctx.contentResolver.query(uri, arrayOf(android.provider.ContactsContract.PhoneLookup.DISPLAY_NAME), null, null, null)?.use {
+                if (it.moveToFirst()) it.getString(0) else null
+            }
+        }.getOrNull()
+    }
+
+    /** Hang up the current call (HFP terminateCall, hidden API — signature differs between versions). */
+    fun hangUp() {
+        val p = hfp ?: return
+        val dev = currentDevice ?: runCatching { p.connectedDevices.firstOrNull() }.getOrNull() ?: return
+        val call = currentCall
+        val ok = runCatching {
+            val m = p.javaClass.methods.first { it.name == "terminateCall" }
+            when (m.parameterTypes.size) {
+                2 -> m.invoke(p, dev, call)
+                3 -> m.invoke(p, dev, call, 0)
+                else -> m.invoke(p, dev)
+            }
+        }.isSuccess
+        if (!ok) runCatching { p.javaClass.getMethod("rejectCall", BluetoothDevice::class.java).invoke(p, dev) }
     }
 
     private fun onMessage(intent: Intent) {
