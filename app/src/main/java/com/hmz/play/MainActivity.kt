@@ -141,6 +141,7 @@ class MainActivity : ComponentActivity() {
         com.hmz.play.ble.CarBluetooth.start(this)
         if (granted(Manifest.permission.ACCESS_FINE_LOCATION)) com.hmz.play.data.Drive.start(this)
         com.hmz.play.data.WeatherSource.start()
+        com.hmz.play.data.Doors.start(this)
     }
 
     /** Steering-wheel / head-unit media keys while HMZ Play is on screen. */

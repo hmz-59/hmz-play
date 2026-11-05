@@ -137,6 +137,7 @@ fun CarRoot(locationGranted: Boolean, refreshKey: Int, onRequestPermissions: () 
         DestinationSheet()
         UpdateBanner()
         ParkedOverlay()
+        DoorAlert()
         CallOverlay()
     }
 }

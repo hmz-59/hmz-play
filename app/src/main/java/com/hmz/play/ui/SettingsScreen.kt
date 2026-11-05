@@ -295,6 +295,25 @@ fun SettingsScreen(onRequestPermissions: () -> Unit) {
         }
 
         Spacer(Modifier.height(14.dp))
+        // Doors
+        val doorSrc by com.hmz.play.data.Doors.source.collectAsStateWithLifecycle()
+        val doorState by com.hmz.play.data.Doors.state.collectAsStateWithLifecycle()
+        Row(Modifier.fillMaxWidth().card().padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
+            PriusView(doorState, Modifier.width(110.dp).height(150.dp))
+            Spacer(Modifier.width(16.dp))
+            Column(Modifier.weight(1f)) {
+                Text("Portes ouvertes", color = C.Text, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                Text(
+                    if (doorSrc != null) "Reçu du boîtier CAN de la Prius ($doorSrc)."
+                    else "Aucune info reçue du boîtier CAN pour l'instant. Ouvre une portière, puis envoie-moi une photo du Diagnostic.",
+                    color = if (doorSrc != null) C.Green else C.Sub, fontSize = 15.sp,
+                )
+                Spacer(Modifier.height(10.dp))
+                PillButton("Tester l'affichage", C.Blue) { com.hmz.play.data.Doors.demo() }
+            }
+        }
+
+        Spacer(Modifier.height(14.dp))
         // Black box
         val marks by com.hmz.play.data.BlackBox.marks.collectAsStateWithLifecycle()
         Column(Modifier.fillMaxWidth().card().padding(20.dp)) {
