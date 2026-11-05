@@ -86,6 +86,8 @@ fun CarRoot(locationGranted: Boolean, refreshKey: Int, onRequestPermissions: () 
                 if ((ctx as? Activity)?.isInMultiWindowMode != true) Split.openNavigation(ctx)
             }
         }
+        // "Son garanti": HMZ Play lives over the Bluetooth app; Waze is opened by hand (flèche bleue).
+        if (com.hmz.play.data.SoundMode.available(ctx)) return@LaunchedEffect
         if (!com.hmz.play.data.AudioSource.doneThisBoot) {
             com.hmz.play.data.AudioSource.doneThisBoot = true
             delay(600)

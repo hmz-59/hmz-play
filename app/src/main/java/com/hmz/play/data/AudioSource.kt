@@ -47,6 +47,8 @@ object AudioSource {
     /** Makes Bluetooth the active audio source, then brings HMZ Play back. Returns false if no BT app found. */
     fun activate(ctx: Context, then: (() -> Unit)? = null): Boolean {
         val app = ctx.applicationContext
+        // "Son garanti" mode: HMZ Play stays as a layer over the Bluetooth app, no back-and-forth.
+        if (SoundMode.available(app)) return SoundMode.enter(app).also { if (it) then?.let { f -> main.postDelayed(f, 600) } }
         val pkg = findPackage(app) ?: return false
         val i = app.packageManager.getLaunchIntentForPackage(pkg) ?: return false
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_ANIMATION)

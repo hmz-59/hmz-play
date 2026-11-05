@@ -18,6 +18,11 @@ import com.hmz.play.MainActivity
 class SplitService : AccessibilityService() {
     private var dock: Dock? = null
     private var callPanel: CallPanel? = null
+    private var hmz: HmzOverlay? = null
+
+    /** HMZ Play drawn over the head unit's Bluetooth app ("son garanti" mode). */
+    fun overlay(): HmzOverlay = hmz ?: HmzOverlay(this).also { hmz = it }
+    fun overlayShown() = hmz?.shown == true
     private var homes: Set<String> = emptySet()
     private var lastPkg: String? = null
 
@@ -28,11 +33,18 @@ class SplitService : AccessibilityService() {
         homes = packageManager.queryIntentActivities(
             Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0,
         ).map { it.activityInfo.packageName }.toSet() - packageName
+        androidx.core.content.ContextCompat.registerReceiver(this, object : android.content.BroadcastReceiver() {
+            override fun onReceive(c: android.content.Context, i: Intent) { hmz?.let { it.refreshKey++ } }
+        }, android.content.IntentFilter().apply {
+            addAction(Intent.ACTION_PACKAGE_ADDED); addAction(Intent.ACTION_PACKAGE_REMOVED); addDataScheme("package")
+        }, androidx.core.content.ContextCompat.RECEIVER_EXPORTED)
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
         dock?.release()
         dock = null
+        hmz?.release()
+        hmz = null
         callPanel?.release()
         callPanel = null
         instance = null
@@ -45,10 +57,13 @@ class SplitService : AccessibilityService() {
         if (pkg == lastPkg) return
         when {
             pkg == packageName -> { lastPkg = pkg; dock?.hide() }
-            pkg in homes -> { lastPkg = pkg; dock?.hide() }
+            pkg in homes -> { lastPkg = pkg; hmz?.hide(); dock?.hide() }
             // Ignore system bars, keyboards, dialogs: they don't change the app on screen.
             packageManager.getLaunchIntentForPackage(pkg) == null -> Unit
             else -> {
+                // Another app opened (Spotify, Waze, settings…): the HMZ layer steps aside.
+                // The Bluetooth app itself is what's meant to sit under the layer.
+                if (!com.hmz.play.ResultProxyActivity.active && pkg != AudioSource.findPackage(this)) hmz?.hide()
                 lastPkg = pkg
                 Shell.record(this, pkg)
                 refresh(pkg)

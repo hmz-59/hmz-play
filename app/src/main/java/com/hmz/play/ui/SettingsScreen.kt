@@ -60,6 +60,8 @@ fun SettingsScreen(onRequestPermissions: () -> Unit) {
     ) {
         Text("Réglages", color = C.Text, fontSize = 30.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(16.dp))
+        SoundModeCard()
+        Spacer(Modifier.height(14.dp))
         GpsCard()
         Spacer(Modifier.height(14.dp))
 

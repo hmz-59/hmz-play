@@ -191,3 +191,40 @@ fun GpsCard() {
         )
     }
 }
+
+/** "Son garanti": HMZ Play shown over the head unit's Bluetooth app so the sound is never cut. */
+@Composable
+fun SoundModeCard() {
+    val ctx = LocalContext.current
+    var on by remember { mutableStateOf(com.hmz.play.data.SoundMode.enabled(ctx)) }
+    var tick by remember { mutableStateOf(0) }
+    androidx.lifecycle.compose.LifecycleResumeEffect(Unit) { tick++; onPauseOrDispose { } }
+    val svcOn = remember(tick) { com.hmz.play.data.Split.serviceEnabled() }
+    val btApp = remember(tick) { com.hmz.play.data.AudioSource.findPackage(ctx) }
+    val running = com.hmz.play.data.SoundMode.active()
+    val (color, text) = when {
+        !on -> C.Sub to "Désactivé."
+        !svcOn -> C.Red to "Il manque une autorisation : active « HMZ Play – barre CarPlay » dans Accessibilité (bouton à droite)."
+        btApp == null -> C.Orange to "Appli Bluetooth de l'autoradio pas encore repérée : ouvre-la une fois et lance une musique, puis reviens."
+        running -> C.Green to "Actif : HMZ Play s'affiche par-dessus l'appli Bluetooth de l'autoradio, le son n'est plus coupé."
+        else -> C.Green to "Prêt : appuie sur le bouton Accueil de l'autoradio ou sur « Lancer »."
+    }
+    Column(Modifier.fillMaxWidth().card().padding(20.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(12.dp).clip(androidx.compose.foundation.shape.CircleShape).background(color))
+            Spacer(Modifier.width(12.dp))
+            Text("Son garanti", color = C.Text, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+            if (on && !svcOn) PillButton("Activer", C.Blue) { com.hmz.play.data.Split.openAccessibilitySettings(ctx) }
+            else if (on && btApp != null && !running) PillButton("Lancer", C.Blue) { com.hmz.play.data.SoundMode.enter(ctx) }
+            Spacer(Modifier.width(8.dp))
+            PillButton(if (on) "Oui" else "Non", if (on) C.Green else C.Panel2) {
+                on = !on
+                com.hmz.play.data.SoundMode.setEnabled(ctx, on)
+                if (!on) com.hmz.play.data.SplitService.instance?.overlay()?.hide()
+                tick++
+            }
+        }
+        Spacer(Modifier.height(6.dp))
+        Text(text, color = C.Text, fontSize = 15.sp)
+    }
+}

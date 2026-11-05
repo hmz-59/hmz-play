@@ -97,6 +97,10 @@ open class MainActivity : ComponentActivity() {
     override fun onStart() {
         super.onStart()
         Shell.hmzVisible = true
+        // Back on HMZ Play (home button…): if the sound mode runs, show the layer over the Bluetooth app.
+        if (javaClass == MainActivity::class.java && requiredPermissions().all { granted(it) }) {
+            window.decorView.post { com.hmz.play.data.SoundMode.enter(this) }
+        }
         SplitService.instance?.refresh()
     }
 
@@ -104,7 +108,7 @@ open class MainActivity : ComponentActivity() {
         super.onStop()
         com.hmz.play.data.Backup.save(this)
         com.hmz.play.data.BlackBox.flush()
-        Shell.hmzVisible = false
+        Shell.hmzVisible = com.hmz.play.data.SoundMode.active()
         SplitService.instance?.refresh()
     }
 
@@ -141,6 +145,7 @@ open class MainActivity : ComponentActivity() {
             "nav" -> com.hmz.play.data.Split.navigateTo(this, "Gare Lille Europe")
             "sign" -> com.hmz.play.ui.VtcState.signName = "M. Dupont"
             "endofday" -> com.hmz.play.ui.VtcState.endOfDayOpen = true
+            "soundapp" -> getSharedPreferences("ui", MODE_PRIVATE).edit().putString("bt_music_pkg", i.getStringExtra("hmz_pkg")).apply()
             "close" -> { com.hmz.play.ui.VtcState.signName = null; com.hmz.play.ui.VtcState.endOfDayOpen = false; com.hmz.play.data.LiveAlerts.dismiss() }
         }
     }
