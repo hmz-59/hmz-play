@@ -47,6 +47,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hmz.play.ble.IphoneLink
@@ -93,7 +94,31 @@ fun CarRoot(locationGranted: Boolean, refreshKey: Int, onRequestPermissions: () 
 
     BackHandler(enabled = screen != Screen.HOME) { screen = Screen.HOME }
 
+    // Day / night palette: automatic at sunrise/sunset, or forced in Settings. Checked every minute.
+    LaunchedEffect(com.hmz.play.data.Prefs.theme) {
+        while (true) {
+            C.dark = when (com.hmz.play.data.Prefs.theme) {
+                com.hmz.play.data.Prefs.ThemeMode.DAY -> false
+                com.hmz.play.data.Prefs.ThemeMode.NIGHT -> true
+                com.hmz.play.data.Prefs.ThemeMode.AUTO -> !com.hmz.play.data.Drive.isDaytime()
+            }
+            delay(60_000)
+        }
+    }
+    val wall = com.hmz.play.data.Prefs.wallpaper
+    C.glass = wall != null
+
     BoxWithConstraints(Modifier.fillMaxSize().background(C.Bg)) {
+        if (wall != null) {
+            val img = androidx.compose.runtime.remember(wall) { wall.asImageBitmap() }
+            androidx.compose.foundation.Image(
+                img, null,
+                contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                filterQuality = androidx.compose.ui.graphics.FilterQuality.Low,
+                modifier = Modifier.fillMaxSize(),
+            )
+            Box(Modifier.fillMaxSize().background(C.Bg.copy(alpha = if (C.dark) 0.45f else 0.30f)))
+        }
         val compact = maxWidth < 640.dp
         if (compact) {
             CompactLayout(screen, apps, onNavigate = { screen = it }, onRequestPermissions = onRequestPermissions)
@@ -129,7 +154,8 @@ private fun Screens(
         targetState = screen,
         modifier = modifier,
         transitionSpec = {
-            (fadeIn(tween(220)) + scaleIn(tween(240), initialScale = 0.96f)) togetherWith fadeOut(tween(140))
+            (fadeIn(tween(200)) + scaleIn(androidx.compose.animation.core.spring(dampingRatio = 0.82f, stiffness = 420f), initialScale = 0.93f)) togetherWith
+                (fadeOut(tween(120)) + androidx.compose.animation.scaleOut(tween(160), targetScale = 1.03f))
         },
         label = "screen",
     ) { s ->
@@ -207,6 +233,7 @@ private fun CompactHome(onNavigate: (Screen) -> Unit) {
             Spacer(Modifier.width(10.dp))
             Text("Où allons-nous ?", color = C.Text, fontSize = 16.sp, fontWeight = FontWeight.Medium)
         }
+        DriveWidget(Modifier.fillMaxWidth())
         NowPlayingCard(Modifier.weight(1f).fillMaxWidth()) { onNavigate(Screen.MUSIC) }
         InfoCard(Modifier.weight(0.8f).fillMaxWidth(), onNavigate)
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {

@@ -155,6 +155,44 @@ fun SettingsScreen(onRequestPermissions: () -> Unit) {
         }
 
         Spacer(Modifier.height(14.dp))
+        // Appearance: day/night + wallpaper
+        val pickWall = androidx.activity.compose.rememberLauncherForActivityResult(
+            androidx.activity.result.contract.ActivityResultContracts.GetContent(),
+        ) { uri -> if (uri != null) com.hmz.play.data.Prefs.setWallpaper(ctx, uri) }
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+            Column(Modifier.weight(1f).card().padding(20.dp)) {
+                Text("Mode jour / nuit", color = C.Text, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                Text("Auto : clair le jour, sombre au coucher du soleil.", color = C.Sub, fontSize = 15.sp)
+                Spacer(Modifier.height(10.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf(
+                        com.hmz.play.data.Prefs.ThemeMode.AUTO to "Auto",
+                        com.hmz.play.data.Prefs.ThemeMode.DAY to "Jour",
+                        com.hmz.play.data.Prefs.ThemeMode.NIGHT to "Nuit",
+                    ).forEach { (m, label) ->
+                        PillButton(label, if (com.hmz.play.data.Prefs.theme == m) C.Blue else C.Panel2) {
+                            com.hmz.play.data.Prefs.setThemeMode(m)
+                        }
+                    }
+                }
+            }
+            Column(Modifier.weight(1f).card().padding(20.dp)) {
+                Text("Fond d'écran", color = C.Text, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                Text(
+                    if (com.hmz.play.data.Prefs.wallpaper != null) "Ta photo, adoucie derrière les cartes." else "Choisis une photo de l'autoradio.",
+                    color = C.Sub, fontSize = 15.sp,
+                )
+                Spacer(Modifier.height(10.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    PillButton("Choisir", C.Blue) { pickWall.launch("image/*") }
+                    if (com.hmz.play.data.Prefs.wallpaper != null) PillButton("Retirer", C.Panel2) {
+                        com.hmz.play.data.Prefs.setWallpaper(ctx, null)
+                    }
+                }
+            }
+        }
+
+        Spacer(Modifier.height(14.dp))
         // Diagnostic
         val log by IphoneLink.log.collectAsStateWithLifecycle()
         Column(Modifier.fillMaxWidth().card().padding(20.dp)) {

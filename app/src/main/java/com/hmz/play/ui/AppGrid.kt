@@ -2,6 +2,9 @@ package com.hmz.play.ui
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.runtime.setValue
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -61,7 +64,19 @@ fun AppGrid(apps: List<AppEntry>, onNavigate: (Screen) -> Unit) {
         GridItem.Builtin("Messages", Icons.AutoMirrored.Filled.Chat, C.Green) { onNavigate(Screen.NOTIFS) },
         GridItem.Builtin("Réglages", Icons.Filled.Settings, Color(0xFF636366)) { onNavigate(Screen.SETTINGS) },
     )
-    val items: List<GridItem> = builtins + apps.map { GridItem.App(it) }
+    // User order first (long press an icon to rearrange), then the default order.
+    val order = com.hmz.play.data.Prefs.appOrder
+    val sortedApps = apps.sortedBy { a -> order.indexOf(a.pkg).let { if (it < 0) Int.MAX_VALUE else it } }
+    val items: List<GridItem> = builtins + sortedApps.map { GridItem.App(it) }
+    var editing by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
+    fun move(pkg: String, delta: Int) {
+        val list = sortedApps.map { it.pkg }.toMutableList()
+        val i = list.indexOf(pkg)
+        val j = (i + delta).coerceIn(0, list.lastIndex)
+        if (i < 0 || i == j) return
+        list.add(j, list.removeAt(i))
+        com.hmz.play.data.Prefs.setOrder(list)
+    }
 
     BoxWithConstraints(Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 18.dp)) {
         val cols = when {
@@ -74,6 +89,12 @@ fun AppGrid(apps: List<AppEntry>, onNavigate: (Screen) -> Unit) {
         val pager = rememberPagerState { pages.size }
 
         Column(Modifier.fillMaxSize()) {
+            if (editing) {
+                Row(Modifier.fillMaxWidth().padding(bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Text("Utilise ◀ ▶ pour déplacer les applis", color = C.Sub, fontSize = 15.sp, modifier = Modifier.weight(1f))
+                    PillButton("Terminé", C.Blue) { editing = false }
+                }
+            }
             HorizontalPager(pager, Modifier.weight(1f).fillMaxWidth()) { page ->
                 val pageItems = pages[page]
                 Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceEvenly) {
@@ -82,7 +103,13 @@ fun AppGrid(apps: List<AppEntry>, onNavigate: (Screen) -> Unit) {
                             for (c in 0 until cols) {
                                 val item = pageItems.getOrNull(r * cols + c)
                                 Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                                    if (item != null) GridIcon(item) {
+                                    if (item != null) GridIcon(
+                                        item,
+                                        editing = editing,
+                                        onLongPress = { editing = true },
+                                        onMove = { d -> (item as? GridItem.App)?.let { move(it.entry.pkg, d) } },
+                                    ) {
+                                        if (editing) return@GridIcon
                                         when (item) {
                                             is GridItem.Builtin -> item.action()
                                             is GridItem.App -> Shell.open(ctx, item.entry.pkg)
@@ -109,10 +136,35 @@ fun AppGrid(apps: List<AppEntry>, onNavigate: (Screen) -> Unit) {
     }
 }
 
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
-private fun GridIcon(item: GridItem, onClick: () -> Unit) {
+private fun GridIcon(
+    item: GridItem,
+    editing: Boolean,
+    onLongPress: () -> Unit,
+    onMove: (Int) -> Unit,
+    onClick: () -> Unit,
+) {
+    // iOS-like wiggle while rearranging
+    val wiggle = androidx.compose.animation.core.rememberInfiniteTransition(label = "wiggle")
+    val angle by wiggle.animateFloat(
+        -2.5f, 2.5f,
+        androidx.compose.animation.core.infiniteRepeatable(
+            androidx.compose.animation.core.tween(140),
+            androidx.compose.animation.core.RepeatMode.Reverse,
+        ),
+        label = "angle",
+    )
     Column(
-        Modifier.tap(onClick = onClick).padding(6.dp),
+        Modifier
+            .graphicsLayer { rotationZ = if (editing && item is GridItem.App) angle else 0f }
+            .combinedClickable(
+                interactionSource = androidx.compose.runtime.remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                indication = null,
+                onClick = onClick,
+                onLongClick = onLongPress,
+            )
+            .padding(6.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         val size = 84.dp
@@ -136,5 +188,11 @@ private fun GridIcon(item: GridItem, onClick: () -> Unit) {
             textAlign = TextAlign.Center,
             modifier = Modifier.size(width = 104.dp, height = 20.dp),
         )
+        if (editing && item is GridItem.App) {
+            Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                Text("◀", color = C.Blue, fontSize = 22.sp, modifier = Modifier.tap { onMove(-1) }.padding(4.dp))
+                Text("▶", color = C.Blue, fontSize = 22.sp, modifier = Modifier.tap { onMove(1) }.padding(4.dp))
+            }
+        }
     }
 }

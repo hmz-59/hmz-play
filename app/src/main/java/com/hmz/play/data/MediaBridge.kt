@@ -44,6 +44,14 @@ class MediaListener : NotificationListenerService() {
     override fun onListenerDisconnected() {
         MediaBridge.detach()
     }
+
+    override fun onNotificationPosted(sbn: android.service.notification.StatusBarNotification) {
+        NavInfo.onPosted(sbn)
+    }
+
+    override fun onNotificationRemoved(sbn: android.service.notification.StatusBarNotification) {
+        NavInfo.onRemoved(sbn)
+    }
 }
 
 object MediaBridge {

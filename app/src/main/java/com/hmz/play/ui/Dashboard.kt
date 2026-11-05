@@ -80,13 +80,14 @@ fun Dashboard(locationGranted: Boolean, onNavigate: (Screen) -> Unit) {
         Modifier.fillMaxSize().padding(12.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        key(locationGranted) {
+        key(locationGranted, C.dark) {
             MapCard(locationGranted, Modifier.weight(1.55f).fillMaxHeight())
         }
         Column(
             Modifier.weight(1f).fillMaxHeight(),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
+            DriveWidget(Modifier.fillMaxWidth())
             NowPlayingCard(Modifier.weight(1f).fillMaxWidth()) { onNavigate(Screen.MUSIC) }
             InfoCard(Modifier.weight(0.78f).fillMaxWidth(), onNavigate)
         }
@@ -130,7 +131,7 @@ private fun MapCard(locationGranted: Boolean, modifier: Modifier) {
                     setMultiTouchControls(false)
                     zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
                     setTilesScaledToDpi(true)
-                    overlayManager.tilesOverlay.setColorFilter(darkMapFilter())
+                    if (C.dark) overlayManager.tilesOverlay.setColorFilter(darkMapFilter())
                     overlayManager.tilesOverlay.setLoadingBackgroundColor(android.graphics.Color.rgb(21, 23, 28))
                     overlayManager.tilesOverlay.setLoadingLineColor(android.graphics.Color.rgb(21, 23, 28))
                     controller.setZoom(16.5)

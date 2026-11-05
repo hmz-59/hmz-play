@@ -14,6 +14,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -28,12 +29,18 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 object C {
-    val Bg = Color(0xFF000000)
-    val Panel = Color(0xFF1C1C1E)
-    val Panel2 = Color(0xFF2C2C2E)
-    val Line = Color(0xFF38383A)
-    val Text = Color(0xFFFFFFFF)
-    val Sub = Color(0xFF8E8E93)
+    /** Night (dark) or day (light) palette; switched automatically at sunrise/sunset. */
+    var dark by androidx.compose.runtime.mutableStateOf(true)
+
+    /** True when a wallpaper is set: surfaces become translucent over it. */
+    var glass by androidx.compose.runtime.mutableStateOf(false)
+
+    val Bg get() = if (dark) Color(0xFF000000) else Color(0xFFF2F2F7)
+    val Panel get() = (if (dark) Color(0xFF1C1C1E) else Color(0xFFFFFFFF)).let { if (glass) it.copy(alpha = 0.78f) else it }
+    val Panel2 get() = if (dark) Color(0xFF2C2C2E) else Color(0xFFE5E5EA)
+    val Line get() = if (dark) Color(0xFF38383A) else Color(0xFFD1D1D6)
+    val Text get() = if (dark) Color(0xFFFFFFFF) else Color(0xFF000000)
+    val Sub get() = if (dark) Color(0xFF8E8E93) else Color(0xFF6C6C70)
     val Blue = Color(0xFF0A84FF)
     val Green = Color(0xFF30D158)
     val Red = Color(0xFFFF453A)

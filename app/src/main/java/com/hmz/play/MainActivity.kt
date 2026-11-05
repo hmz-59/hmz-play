@@ -46,6 +46,17 @@ class MainActivity : ComponentActivity() {
             osmdroidTileCache = File(base, "tiles")
         }
         locationGranted = granted(Manifest.permission.ACCESS_FINE_LOCATION)
+        com.hmz.play.data.Prefs.load(this)
+
+        // Reload the app grid only when an app is installed or removed (not on every resume: faster).
+        ContextCompat.registerReceiver(this, object : android.content.BroadcastReceiver() {
+            override fun onReceive(c: android.content.Context, i: Intent) { refreshKey++ }
+        }, android.content.IntentFilter().apply {
+            addAction(Intent.ACTION_PACKAGE_ADDED)
+            addAction(Intent.ACTION_PACKAGE_REMOVED)
+            addAction(Intent.ACTION_PACKAGE_REPLACED)
+            addDataScheme("package")
+        }, ContextCompat.RECEIVER_EXPORTED)
 
         setContent {
             HmzTheme {
@@ -80,7 +91,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        refreshKey++ // reload app list (new installs)
         com.hmz.play.data.MediaBridge.start(this)
         com.hmz.play.data.Updater.check(this)
     }
@@ -123,5 +133,20 @@ class MainActivity : ComponentActivity() {
         }
         IphoneLink.start(this)
         com.hmz.play.ble.CarBluetooth.start(this)
+        if (granted(Manifest.permission.ACCESS_FINE_LOCATION)) com.hmz.play.data.Drive.start(this)
+    }
+
+    /** Steering-wheel / head-unit media keys while HMZ Play is on screen. */
+    override fun onKeyDown(keyCode: Int, event: android.view.KeyEvent?): Boolean {
+        val cmd = when (keyCode) {
+            android.view.KeyEvent.KEYCODE_MEDIA_NEXT -> com.hmz.play.ble.Cmd.NEXT
+            android.view.KeyEvent.KEYCODE_MEDIA_PREVIOUS -> com.hmz.play.ble.Cmd.PREVIOUS
+            android.view.KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, android.view.KeyEvent.KEYCODE_HEADSETHOOK -> com.hmz.play.ble.Cmd.TOGGLE
+            android.view.KeyEvent.KEYCODE_MEDIA_PLAY -> com.hmz.play.ble.Cmd.PLAY
+            android.view.KeyEvent.KEYCODE_MEDIA_PAUSE -> com.hmz.play.ble.Cmd.PAUSE
+            else -> return super.onKeyDown(keyCode, event)
+        }
+        IphoneLink.command(cmd)
+        return true
     }
 }
