@@ -88,6 +88,7 @@ fun Dashboard(locationGranted: Boolean, onNavigate: (Screen) -> Unit) {
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             DriveWidget(Modifier.fillMaxWidth())
+            LiveHeadline(Modifier.fillMaxWidth()) { onNavigate(Screen.LIVE) }
             NowPlayingCard(Modifier.weight(1f).fillMaxWidth()) { onNavigate(Screen.MUSIC) }
             InfoCard(Modifier.weight(0.78f).fillMaxWidth(), onNavigate)
         }

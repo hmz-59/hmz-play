@@ -294,9 +294,15 @@ fun VtcScreen() {
                     Text("Courses", color = C.Text, fontSize = 30.sp, fontWeight = FontWeight.Bold)
                     Text("HMZ DRIVE · ${Vtc.SLOGAN}", color = GOLD, fontSize = 15.sp)
                 }
+                PillButton("Panneau client", C.Panel2) { VtcState.signEditOpen = true }
+                Spacer(Modifier.width(8.dp))
+                PillButton("Fin de journée", GOLD) { VtcState.endOfDayOpen = true }
+                Spacer(Modifier.width(8.dp))
                 RideButton()
             }
         }
+        item { NetCard(refresh to Vtc.pending) }
+        item { BestSlotsCard(refresh to Vtc.pending) }
         item {
             Row(Modifier.fillMaxWidth().card().padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {

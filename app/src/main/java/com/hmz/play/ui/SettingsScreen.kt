@@ -314,6 +314,9 @@ fun SettingsScreen(onRequestPermissions: () -> Unit) {
         }
 
         Spacer(Modifier.height(14.dp))
+        LiveKeysCard()
+
+        Spacer(Modifier.height(14.dp))
         // Black box
         val marks by com.hmz.play.data.BlackBox.marks.collectAsStateWithLifecycle()
         Column(Modifier.fillMaxWidth().card().padding(20.dp)) {

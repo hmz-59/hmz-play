@@ -37,6 +37,11 @@ object Drive {
     private val _lastMoving = MutableStateFlow(android.os.SystemClock.elapsedRealtime())
     val lastMoving: StateFlow<Long> = _lastMoving.asStateFlow()
 
+    /** Driving seconds since the last real break (20 min stopped). */
+    private val _sinceBreak = MutableStateFlow(0L)
+    val sinceBreak: StateFlow<Long> = _sinceBreak.asStateFlow()
+    private var stoppedSince = 0L
+
     private var started = false
     private var last: Location? = null
     private var lastSave = 0L
@@ -90,11 +95,17 @@ object Drive {
         if (prev != null && loc.accuracy < 30f) {
             val dt = (loc.time - prev.time) / 1000
             if (speed > 4f && dt in 1..10) {
+                _sinceBreak.value += dt
+                stoppedSince = 0L
                 val dKm = prev.distanceTo(loc) / 1000.0
                 km += dKm
                 totalKmMem += dKm
                 sec += dt
             }
+        }
+        if (speed < 3f) {
+            if (stoppedSince == 0L) stoppedSince = loc.time
+            if (loc.time - stoppedSince > 20 * 60_000) _sinceBreak.value = 0
         }
         last = loc
         BlackBox.record(loc, speed.toInt())

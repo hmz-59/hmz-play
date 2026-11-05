@@ -21,18 +21,22 @@ data class Ride(
     val price: Double,
     val payment: String,
     val destination: String,
+    val pickupLat: Double = 0.0,
+    val pickupLon: Double = 0.0,
 ) {
     val minutes get() = ((end - start) / 60_000).toInt()
     val day: LocalDate get() = Instant.ofEpochMilli(start).atZone(ZoneId.systemDefault()).toLocalDate()
 
     fun json() = JSONObject().put("start", start).put("end", end).put("km", km).put("platform", platform)
-        .put("price", price).put("payment", payment).put("dest", destination).toString()
+        .put("price", price).put("payment", payment).put("dest", destination)
+        .put("plat", pickupLat).put("plon", pickupLon).toString()
 
     companion object {
         fun parse(s: String) = runCatching {
             val j = JSONObject(s)
             Ride(j.getLong("start"), j.getLong("end"), j.getDouble("km"), j.getString("platform"),
-                j.optDouble("price", 0.0), j.optString("payment"), j.optString("dest"))
+                j.optDouble("price", 0.0), j.optString("payment"), j.optString("dest"),
+                j.optDouble("plat", 0.0), j.optDouble("plon", 0.0))
         }.getOrNull()
     }
 }
@@ -69,6 +73,8 @@ object Vtc {
     var showWelcome by mutableStateOf(false)
 
     private var startKm = 0.0
+    private var pickLat = 0.0
+    private var pickLon = 0.0
     private var volumeSteps = 0
     private var app: Context? = null
 
@@ -85,6 +91,8 @@ object Vtc {
         destination = dest.trim()
         startedAt = System.currentTimeMillis()
         startKm = Drive.totalKm(ctx)
+        pickLat = Drive.lat
+        pickLon = Drive.lon
         active = true
         showWelcome = true
         p(ctx).edit().putString("platform", plat).apply()
@@ -105,7 +113,7 @@ object Vtc {
         val am = ctx.getSystemService(AudioManager::class.java)
         repeat(volumeSteps) { runCatching { am?.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_RAISE, 0) } }
         volumeSteps = 0
-        pending = Ride(startedAt, System.currentTimeMillis(), km(ctx), platform, 0.0, if (platform == "Direct") "Espèces" else "Appli", destination)
+        pending = Ride(startedAt, System.currentTimeMillis(), km(ctx), platform, 0.0, if (platform == "Direct") "Espèces" else "Appli", destination, pickLat, pickLon)
         active = false
         showWelcome = false
     }
@@ -128,6 +136,56 @@ object Vtc {
     fun today(ctx: Context) = rides(ctx).filter { it.day == LocalDate.now() }
     fun week(ctx: Context) = rides(ctx).filter { it.day.isAfter(LocalDate.now().minusDays(7)) }
     fun month(ctx: Context) = rides(ctx).filter { it.day.month == LocalDate.now().month && it.day.year == LocalDate.now().year }
+
+    // ---------------------------------------------------------------- money & time analysis
+
+    fun consumption(ctx: Context) = p(ctx).getFloat("l100", 4.5f).toDouble()
+    fun setConsumption(ctx: Context, v: Double) = p(ctx).edit().putFloat("l100", v.toFloat()).apply()
+    fun urssafRate(ctx: Context) = p(ctx).getFloat("urssaf", 21.2f).toDouble()
+    fun setUrssafRate(ctx: Context, v: Double) = p(ctx).edit().putFloat("urssaf", v.toFloat()).apply()
+
+    /** €/L: cheapest SP95-E10 found nearby (Carburant screen), else the last known price. */
+    fun fuelPrice(ctx: Context): Double {
+        Fuel.stations.value.firstOrNull()?.prices?.get(Fuel.fuel(ctx))?.let {
+            p(ctx).edit().putFloat("fuel_price", it.toFloat()).apply()
+            return it
+        }
+        return p(ctx).getFloat("fuel_price", 1.85f).toDouble()
+    }
+
+    data class DayReport(
+        val stats: Stats,
+        val totalKm: Double,     // all km of the day (GPS)
+        val emptyKm: Double,     // km without a passenger
+        val idleMin: Int,        // waiting time between rides
+        val fuelCost: Double,
+        val urssaf: Double,
+        val net: Double,
+    )
+
+    fun dayReport(ctx: Context, day: LocalDate = LocalDate.now()): DayReport {
+        val list = rides(ctx).filter { it.day == day }.sortedBy { it.start }
+        val st = stats(list)
+        val total = if (day == LocalDate.now()) Drive.state.value.km
+            else Drive.history(ctx, 60).firstOrNull { it.first == day }?.second ?: st.km
+        val empty = (total - st.km).coerceAtLeast(0.0)
+        val idle = list.zipWithNext { a, b -> ((b.start - a.end) / 60_000).toInt() }.filter { it in 0..180 }.sum()
+        val fuel = total * consumption(ctx) / 100.0 * fuelPrice(ctx)
+        val urssaf = st.revenue * urssafRate(ctx) / 100.0
+        return DayReport(st, total, empty, idle, fuel, urssaf, st.revenue - fuel - urssaf)
+    }
+
+    /** Best time slots from your history: (day of week, hour) → €/hour, best first. */
+    fun bestSlots(ctx: Context): List<Triple<java.time.DayOfWeek, Int, Double>> {
+        val byslot = rides(ctx).groupBy {
+            val t = Instant.ofEpochMilli(it.start).atZone(ZoneId.systemDefault())
+            t.dayOfWeek to t.hour
+        }
+        return byslot.filter { it.value.size >= 2 }.map { (k, v) ->
+            val mins = v.sumOf { it.minutes }.coerceAtLeast(1)
+            Triple(k.first, k.second, v.sumOf { it.price } / (mins / 60.0))
+        }.sortedByDescending { it.third }.take(5)
+    }
 
     /** CSV for the month (URSSAF / bookkeeping), in Documents/HMZ Play on the head unit. */
     fun exportMonth(ctx: Context): File? = runCatching {
