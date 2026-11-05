@@ -176,12 +176,19 @@ fun SettingsScreen(onRequestPermissions: () -> Unit) {
             Column(Modifier.weight(1f)) {
                 Text("Waze", color = C.Text, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
                 Text(
-                    if (wazeOk) "Installé." else wazeStatus ?: "Pas encore installé sur l'autoradio.",
+                    if (wazeOk) "Installé." else wazeStatus ?: "Version compatible avec cet autoradio : 5.9.5.4 (les plus récentes exigent Android 10).",
                     color = if (wazeOk) C.Green else C.Sub, fontSize = 15.sp,
                 )
             }
             Spacer(Modifier.width(14.dp))
-            PillButton(if (wazeOk) "Ouvrir" else "Installer Waze", C.Blue) { WazeInstaller.start(ctx) }
+            if (wazeOk) {
+                PillButton("Ouvrir", C.Blue) { WazeInstaller.start(ctx) }
+            } else {
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    PillButton("1. Télécharger", C.Panel2) { WazeInstaller.openDownloadPage(ctx) }
+                    PillButton("2. Installer Waze", C.Blue) { WazeInstaller.installDownloaded(ctx) }
+                }
+            }
         }
 
         Spacer(Modifier.height(14.dp))

@@ -109,6 +109,7 @@ class MainActivity : ComponentActivity() {
         }
         add(Manifest.permission.ACCESS_FINE_LOCATION)
         add(Manifest.permission.ACCESS_COARSE_LOCATION)
+        if (Build.VERSION.SDK_INT <= 32) add(Manifest.permission.READ_EXTERNAL_STORAGE) // find the downloaded Waze file
         add(Manifest.permission.RECEIVE_SMS) // SMS/iMessage relayed by the iPhone over car Bluetooth (MAP)
         if (Build.VERSION.SDK_INT >= 33) add(Manifest.permission.POST_NOTIFICATIONS)
     }
