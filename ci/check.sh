@@ -15,6 +15,7 @@ adb install -g HMZ-Play.apk || { echo "INSTALL FAILED" > $OUT/report.txt; exit 0
 adb shell settings put secure enabled_accessibility_services $PKG/$PKG.data.SplitService
 adb shell settings put secure accessibility_enabled 1
 adb shell cmd notification allow_listener $PKG/$PKG.data.MediaListener
+adb shell cmd package set-home-activity $PKG/.MainActivity
 adb logcat -c
 adb shell am start -n $PKG/.MainActivity
 sleep 20
@@ -35,7 +36,9 @@ adb shell input swipe 1000 620 1000 120 500; sleep 2; shot 03_VTC_2
 # Affluence again (data had time to load)
 adb shell am start -n $PKG/.MainActivity --es hmz_screen LIVE; sleep 20; shot 04_LIVE_loaded
 adb shell am start -n $PKG/.MainActivity --es hmz_screen FUEL; sleep 10; shot 04_FUEL_loaded
+adb shell input keyevent KEYCODE_HOME; sleep 3
 adb shell am start -n $PKG/.MainActivity --es hmz_demo nav; sleep 12; shot 09_nav_destination
+adb shell dumpsys activity activities | grep -E "mResumedActivity|windowingMode=|Task id|realActivity" | head -40 > $OUT/split.txt
 adb shell am start -n $PKG/.MainActivity --es hmz_screen HOME; sleep 3
 for d in alert sign endofday; do
   adb shell am start -n $PKG/.MainActivity --es hmz_screen HOME --es hmz_demo $d

@@ -28,7 +28,7 @@ import com.hmz.play.ui.HmzTheme
 import org.osmdroid.config.Configuration
 import java.io.File
 
-class MainActivity : ComponentActivity() {
+open class MainActivity : ComponentActivity() {
 
     private var locationGranted by mutableStateOf(false)
     private var refreshKey by mutableIntStateOf(0)

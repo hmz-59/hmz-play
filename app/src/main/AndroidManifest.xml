@@ -61,6 +61,16 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".SideActivity"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:taskAffinity="com.hmz.play.side"
+            android:resizeableActivity="true"
+            android:screenOrientation="unspecified"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|uiMode"
+            android:windowSoftInputMode="adjustNothing" />
+
         <service
             android:name=".ble.LinkService"
             android:exported="false"

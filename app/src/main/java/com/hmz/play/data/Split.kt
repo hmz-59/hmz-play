@@ -184,14 +184,10 @@ object Split {
             if (!started && runCatching { ctx.startActivity(launch) }.isFailure) { Apps.openNavigation(ctx); return }
             if (started) {
                 main.postDelayed({
-                    // Only if Android really split the screen; otherwise leave Waze full screen.
-                    if (!Shell.inSplit) {
-                        android.widget.Toast.makeText(ctx, "Pour avoir Waze à côté de HMZ Play : Réglages HMZ › Barre CarPlay › Activer", android.widget.Toast.LENGTH_LONG).show()
-                        return@postDelayed
-                    }
+                    // SideActivity closes itself if Android didn't split the screen (Waze stays full screen).
                     runCatching {
                         ctx.startActivity(
-                            Intent(ctx, MainActivity::class.java).addFlags(
+                            Intent(ctx, com.hmz.play.SideActivity::class.java).addFlags(
                                 Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT,
                             ),
                         )
@@ -210,7 +206,7 @@ object Split {
                 main.postDelayed({
                     runCatching {
                         svc.startActivity(
-                            Intent(svc, MainActivity::class.java).addFlags(
+                            Intent(svc, com.hmz.play.SideActivity::class.java).addFlags(
                                 Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT,
                             ),
                         )
