@@ -96,22 +96,41 @@ class CallPanel(private val svc: SplitService) {
                 pulse(false)
             }
         }
-        show()
+        show(c.incoming)
     }
 
-    private fun show() {
-        if (shown) return
-        val lp = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
-            PixelFormat.TRANSLUCENT,
-        )
-        runCatching { wm.addView(root, lp) }.onSuccess {
+    /**
+     * Incoming call: full screen (answer / decline). In a call or calling: a compact card at the top,
+     * the rest of the screen (Waze) stays usable.
+     */
+    private fun lp(full: Boolean) = WindowManager.LayoutParams(
+        if (full) WindowManager.LayoutParams.MATCH_PARENT else WindowManager.LayoutParams.WRAP_CONTENT,
+        if (full) WindowManager.LayoutParams.MATCH_PARENT else WindowManager.LayoutParams.WRAP_CONTENT,
+        WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
+        WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+            (if (full) 0 else WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL),
+        PixelFormat.TRANSLUCENT,
+    ).apply { gravity = if (full) Gravity.CENTER else Gravity.TOP or Gravity.CENTER_HORIZONTAL; if (!full) y = px(12) }
+
+    private var fullMode = true
+    private var avatarView: View? = null
+
+    private fun show(full: Boolean) {
+        val r = root ?: return
+        r.setBackgroundColor(if (full) Color.argb(235, 0, 0, 0) else Color.TRANSPARENT)
+        r.isClickable = full
+        avatarView?.visibility = if (full) View.VISIBLE else View.GONE
+        name.textSize = if (full) 30f else 22f
+        if (shown) {
+            if (full != fullMode) runCatching { wm.updateViewLayout(r, lp(full)) }
+            fullMode = full
+            return
+        }
+        fullMode = full
+        runCatching { wm.addView(r, lp(full)) }.onSuccess {
             shown = true
-            root?.alpha = 0f
-            root?.animate()?.alpha(1f)?.setDuration(200)?.start()
+            r.alpha = 0f
+            r.animate().alpha(1f).setDuration(200).start()
         }
     }
 
@@ -135,7 +154,7 @@ class CallPanel(private val svc: SplitService) {
             setPadding(px(40), px(30), px(40), px(28))
             background = GradientDrawable().apply { cornerRadius = px(30).toFloat(); setColor(Color.parseColor("#1C1C1E")) }
         }
-        val avatar = FrameLayout(ctx)
+        val avatar = FrameLayout(ctx).also { avatarView = it }
         halo = View(ctx).apply {
             background = GradientDrawable().apply { shape = GradientDrawable.OVAL; setColor(Color.parseColor("#30D158")) }
             alpha = 0f

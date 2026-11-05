@@ -42,6 +42,7 @@ object WazeInstaller {
     private val _status = MutableStateFlow<String?>(null)
     val status: StateFlow<String?> = _status.asStateFlow()
     private var appCtx: Context? = null
+    @Volatile private var busy = false
 
     private fun say(msg: String) {
         _status.value = msg
@@ -95,9 +96,12 @@ object WazeInstaller {
             say("Fichier Waze introuvable dans Téléchargements. Fais d'abord l'étape 1.")
             return
         }
+        if (busy) return
+        busy = true
         scope.launch {
             say("Étape 2/2 : vérification et installation de Waze…")
             val err = withContext(Dispatchers.IO) { runCatching { install(app, file) }.exceptionOrNull() }
+            busy = false
             if (err != null) say("Installation impossible : ${err.message}")
         }
     }
@@ -114,7 +118,12 @@ object WazeInstaller {
             zip = ZipFile(file)
             val entries = zip.entries().toList().filter { !it.isDirectory && it.name.endsWith(".apk") }
             require(entries.isNotEmpty()) { "paquet vide ou illisible" }
-            entries.forEach { e ->
+            // Keep only the native-code parts this head unit can run (arm64 / armeabi-v7a…).
+            val abis = Build.SUPPORTED_ABIS.map { it.replace('-', '_') }
+            val isAbi = { n: String -> listOf("arm64_v8a", "armeabi_v7a", "armeabi", "x86_64", "x86").any { n.contains("config.$it.") } }
+            val fitting = entries.filter { e -> val n = e.name.substringAfterLast('/'); !isAbi(n) || abis.any { n.contains("config.$it.") } }
+            val chosen = if (fitting.any { !isAbi(it.name) }) fitting else entries
+            chosen.forEach { e ->
                 parts += e.name.substringAfterLast('/') to { zip.getInputStream(e) }
                 sizes += e.size
             }
@@ -131,7 +140,8 @@ object WazeInstaller {
         val params = PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL)
             .apply { setAppPackageName(WAZE) }
         val id = pi.createSession(params)
-        pi.openSession(id).use { s ->
+        val s = pi.openSession(id)
+        try {
             parts.forEachIndexed { idx, (name, open) ->
                 open().use { input ->
                     s.openWrite(name, 0, sizes[idx].takeIf { it > 0 } ?: -1).use { out ->
@@ -140,7 +150,6 @@ object WazeInstaller {
                     }
                 }
             }
-            zip?.close()
             ContextCompat.registerReceiver(ctx, object : BroadcastReceiver() {
                 override fun onReceive(c: Context, i: Intent) {
                     when (i.getIntExtra(PackageInstaller.EXTRA_STATUS, -999)) {
@@ -163,6 +172,12 @@ object WazeInstaller {
             val flags = PendingIntent.FLAG_UPDATE_CURRENT or (if (Build.VERSION.SDK_INT >= 31) PendingIntent.FLAG_MUTABLE else 0)
             val cb = PendingIntent.getBroadcast(ctx, id, Intent(ACTION_DONE).setPackage(ctx.packageName), flags)
             s.commit(cb.intentSender)
+        } catch (t: Throwable) {
+            runCatching { s.abandon() }
+            throw t
+        } finally {
+            runCatching { zip?.close() }
+            runCatching { s.close() }
         }
     }
 }

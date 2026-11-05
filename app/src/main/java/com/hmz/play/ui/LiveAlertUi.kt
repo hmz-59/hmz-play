@@ -42,6 +42,8 @@ import com.hmz.play.data.LiveAlerts
 import com.hmz.play.data.LiveItem
 import com.hmz.play.data.Split
 import java.time.Duration
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
 private const val SHOW_MS = 10_000
@@ -61,7 +63,10 @@ fun LiveAlertOverlay() {
         val icon = when (al.kind) { LiveItem.Kind.TRAIN -> "🚄"; LiveItem.Kind.FLIGHT -> "✈️"; LiveItem.Kind.EVENT -> "🎟️" }
         val bar = remember(al) { Animatable(1f) }
         LaunchedEffect(al) {
-            bar.animateTo(0f, tween(SHOW_MS, easing = LinearEasing))
+            // stale (shown while HMZ Play was hidden): skip it
+            if (Duration.between(al.at, LocalDateTime.now()).toMinutes() > 2) { LiveAlerts.dismiss(); return@LaunchedEffect }
+            launch { bar.animateTo(0f, tween(SHOW_MS, easing = LinearEasing)) }
+            delay(SHOW_MS.toLong()) // real 10 s, whatever the system animation speed
             LiveAlerts.dismiss()
         }
         val left = Duration.between(LocalDateTime.now(), al.at).toMinutes().coerceAtLeast(0)

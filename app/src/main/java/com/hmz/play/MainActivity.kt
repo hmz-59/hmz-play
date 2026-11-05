@@ -65,6 +65,11 @@ class MainActivity : ComponentActivity() {
             HmzTheme {
                 val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
                     locationGranted = granted(Manifest.permission.ACCESS_FINE_LOCATION)
+                    // storage is now readable: restore a saved backup after a reinstall
+                    if (!getSharedPreferences("ui", MODE_PRIVATE).getBoolean("restored_once", false)) {
+                        com.hmz.play.data.Backup.restoreIfFresh(this@MainActivity)
+                        com.hmz.play.data.Prefs.reload(this@MainActivity)
+                    }
                     startLink()
                 }
                 LaunchedEffect(Unit) {
@@ -94,8 +99,14 @@ class MainActivity : ComponentActivity() {
         SplitService.instance?.refresh()
     }
 
+    override fun onMultiWindowModeChanged(isInMultiWindowMode: Boolean, newConfig: android.content.res.Configuration) {
+        super.onMultiWindowModeChanged(isInMultiWindowMode, newConfig)
+        com.hmz.play.data.Shell.inSplit = isInMultiWindowMode
+    }
+
     override fun onResume() {
         super.onResume()
+        com.hmz.play.data.Shell.inSplit = isInMultiWindowMode
         com.hmz.play.data.MediaBridge.start(this)
         com.hmz.play.data.Updater.check(this)
     }

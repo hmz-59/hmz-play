@@ -90,22 +90,30 @@ object LiveInfo {
 
         runCatching { trains(ctx) }
             .onSuccess { out += it; st[LiveItem.Kind.TRAIN] = if (sncfKey(ctx).isBlank()) "Ajoute ta clé SNCF dans Réglages" else "" }
-            .onFailure { st[LiveItem.Kind.TRAIN] = "Trains indisponibles (${it.message})" }
+            .onFailure { st[LiveItem.Kind.TRAIN] = "Trains indisponibles (${msg(it)})" }
         if (flights) {
             runCatching { flights(ctx) }
                 .onSuccess { out += it; st[LiveItem.Kind.FLIGHT] = if (airKey(ctx).isBlank()) "Ajoute ta clé AirLabs dans Réglages" else "" }
-                .onFailure { st[LiveItem.Kind.FLIGHT] = "Vols indisponibles (${it.message})" }
+                .onFailure { st[LiveItem.Kind.FLIGHT] = "Vols indisponibles (${msg(it)})" }
         } else out += keep
         runCatching { events() }
             .onSuccess { out += it; st[LiveItem.Kind.EVENT] = "" }
-            .onFailure { st[LiveItem.Kind.EVENT] = "Événements indisponibles (${it.message})" }
+            .onFailure { st[LiveItem.Kind.EVENT] = "Événements indisponibles (${msg(it)})" }
         runCatching { losc() }
             .onSuccess { out += it }
-            .onFailure { st[LiveItem.Kind.EVENT] = (st[LiveItem.Kind.EVENT].orEmpty() + " Matchs LOSC indisponibles (${it.message})").trim() }
+            .onFailure { st[LiveItem.Kind.EVENT] = (st[LiveItem.Kind.EVENT].orEmpty() + " Matchs LOSC indisponibles (${msg(it)})").trim() }
 
         val now = LocalDateTime.now().minusMinutes(15)
         _items.value = out.filter { it.time.isAfter(now) }.sortedBy { it.time }
         _status.value = st
+    }
+
+    /** Short reason without any URL (it could contain an API key). */
+    private fun msg(t: Throwable) = when (t) {
+        is java.net.UnknownHostException, is java.net.ConnectException -> "pas d'internet"
+        is java.net.SocketTimeoutException -> "délai dépassé"
+        is IllegalStateException -> t.message ?: "erreur"
+        else -> "réponse illisible"
     }
 
     private fun get(url: String, auth: String? = null): String {
@@ -114,7 +122,10 @@ object LiveInfo {
         c.readTimeout = 15000
         c.setRequestProperty("User-Agent", "HMZPlay/1.0")
         if (auth != null) c.setRequestProperty("Authorization", auth)
-        if (c.responseCode == 401 || c.responseCode == 403) error("clé refusée")
+        val code = c.responseCode
+        if (code == 401 || code == 403) error("clé refusée")
+        if (code == 429) error("trop de demandes, réessai plus tard")
+        if (code !in 200..299) error("serveur HTTP $code")
         return c.inputStream.bufferedReader().use { it.readText() }
     }
 
@@ -182,8 +193,9 @@ object LiveInfo {
 
     private fun events(): List<LiveItem> {
         val today = java.time.LocalDate.now()
+        // Events whose first date is today or tomorrow (long-running expos/ateliers fill the list otherwise).
         val where = "within_distance(location_coordinates, geom'POINT(3.06 50.63)', 25km) " +
-            "and firstdate_begin <= '${today.plusDays(1)}' and lastdate_end >= '$today'"
+            "and firstdate_begin >= '$today' and firstdate_begin < '${today.plusDays(2)}'"
         val url = "https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/evenements-publics-openagenda/records" +
             "?limit=100&order_by=firstdate_begin&where=" + URLEncoder.encode(where, "UTF-8")
         val res = JSONObject(get(url)).optJSONArray("results") ?: return emptyList()
@@ -205,7 +217,7 @@ object LiveInfo {
                 LiveItem.Kind.EVENT, if (begin.toLocalDate().isBefore(today)) end ?: begin else begin,
                 e.optString("title_fr").ifBlank { "Événement" }, place,
                 end?.let { "jusqu'à %02d:%02d".format(it.hour, it.minute) } ?: "", big,
-                c?.optDouble("lat"), c?.optDouble("lon"), end,
+                c?.optDouble("lat")?.takeIf { !it.isNaN() }, c?.optDouble("lon")?.takeIf { !it.isNaN() }, end,
             )
         }
     }

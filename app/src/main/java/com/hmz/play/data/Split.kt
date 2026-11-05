@@ -102,26 +102,33 @@ object Split {
      */
     fun navigateTo(ctx: Context, destination: String) {
         val q = Uri.encode(destination.trim())
-        val waze = ctx.packageManager.getLaunchIntentForPackage("com.waze") != null
-        val intent = if (waze) {
-            Intent(Intent.ACTION_VIEW, Uri.parse("https://waze.com/ul?q=$q&navigate=yes")).setPackage("com.waze")
-        } else {
-            Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0?q=$q"))
-        }
         addRecent(ctx, destination.trim())
-        openNavigation(ctx, intent = intent)
+        openNavigation(
+            ctx,
+            intents = listOf(
+                // waze:// works on every Waze version (5.9.5.4 included); waze.com/ul as second choice.
+                Intent(Intent.ACTION_VIEW, Uri.parse("waze://?q=$q&navigate=yes")).setPackage(WAZE),
+                Intent(Intent.ACTION_VIEW, Uri.parse("https://waze.com/ul?q=$q&navigate=yes")).setPackage(WAZE),
+                Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0?q=$q")),
+            ),
+        )
     }
 
-    /** Guidance to exact coordinates (fuel station…). */
+    /** Guidance to exact coordinates (fuel station, station, airport…). */
     fun navigateToCoords(ctx: Context, lat: Double, lon: Double, label: String) {
-        val waze = ctx.packageManager.getLaunchIntentForPackage("com.waze") != null
-        val intent = if (waze) {
-            Intent(Intent.ACTION_VIEW, Uri.parse("https://waze.com/ul?ll=$lat,$lon&navigate=yes")).setPackage("com.waze")
-        } else {
-            Intent(Intent.ACTION_VIEW, Uri.parse("geo:$lat,$lon?q=$lat,$lon(${Uri.encode(label)})"))
-        }
-        openNavigation(ctx, intent = intent)
+        if (lat.isNaN() || lon.isNaN()) { navigateTo(ctx, label); return }
+        val ll = "%.6f,%.6f".format(java.util.Locale.US, lat, lon)
+        openNavigation(
+            ctx,
+            intents = listOf(
+                Intent(Intent.ACTION_VIEW, Uri.parse("waze://?ll=$ll&navigate=yes")).setPackage(WAZE),
+                Intent(Intent.ACTION_VIEW, Uri.parse("https://waze.com/ul?ll=$ll&navigate=yes")).setPackage(WAZE),
+                Intent(Intent.ACTION_VIEW, Uri.parse("geo:$ll?q=$ll(${Uri.encode(label)})")),
+            ),
+        )
     }
+
+    private const val WAZE = "com.waze"
 
     fun recents(ctx: Context): List<String> =
         prefs(ctx).getString("recents", "").orEmpty().split('\n').filter { it.isNotBlank() }
@@ -145,11 +152,15 @@ object Split {
      * Opens the navigation app (Waze first) on the left half and HMZ Play on the right half.
      * Falls back to full screen when the tablet can't do split screen.
      */
-    fun openNavigation(ctx: Context, pkg: String? = null, intent: Intent? = null) {
-        val launch = intent ?: run {
+    fun openNavigation(ctx: Context, pkg: String? = null, intent: Intent? = null, intents: List<Intent>? = null) {
+        val candidates = intents ?: listOfNotNull(intent ?: run {
             val p = pkg ?: navPackage(ctx) ?: run { Apps.openNavigation(ctx); return }
             ctx.packageManager.getLaunchIntentForPackage(p) ?: run { Apps.openNavigation(ctx); return }
-        }
+        })
+        val pm = ctx.packageManager
+        // first candidate that an installed app can actually open
+        val launch = candidates.firstOrNull { it.resolveActivity(pm) != null }
+            ?: run { Apps.openNavigation(ctx); return }
         launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
         val activity = ctx as? Activity
@@ -161,7 +172,7 @@ object Split {
         }
 
         val svc = SplitService.instance
-        runCatching { ctx.startActivity(launch) }
+        if (runCatching { ctx.startActivity(launch) }.isFailure) { Apps.openNavigation(ctx); return }
         if (svc == null) return
 
         // Waze is now in front: split it (it becomes the left/top half), then bring HMZ Play into the other half.

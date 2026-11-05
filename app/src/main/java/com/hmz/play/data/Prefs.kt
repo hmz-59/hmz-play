@@ -23,6 +23,9 @@ object Prefs {
     private var app: Context? = null
     private fun p() = app!!.getSharedPreferences("ui", Context.MODE_PRIVATE)
 
+    /** Re-reads everything (after a settings backup was restored). */
+    fun reload(ctx: Context) { app = null; load(ctx) }
+
     fun load(ctx: Context) {
         if (app != null) return
         app = ctx.applicationContext
@@ -50,8 +53,15 @@ object Prefs {
             wallpaper = null
             return
         }
+        // Decode at reduced size (a 12 MP photo at full size can run out of memory on the head unit).
         val bmp = runCatching {
-            ctx.contentResolver.openInputStream(uri)!!.use { BitmapFactory.decodeStream(it) }
+            val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            ctx.contentResolver.openInputStream(uri)!!.use { BitmapFactory.decodeStream(it, null, bounds) }
+            var sample = 1
+            while (bounds.outWidth / (sample * 2) >= 640) sample *= 2
+            ctx.contentResolver.openInputStream(uri)!!.use {
+                BitmapFactory.decodeStream(it, null, BitmapFactory.Options().apply { inSampleSize = sample })
+            }
         }.getOrNull() ?: return
         val w = 640
         val h = (bmp.height * w / bmp.width.toFloat()).toInt().coerceAtLeast(1)

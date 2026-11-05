@@ -137,7 +137,8 @@ fun ParkedOverlay() {
     val now by produceState(SystemClock.elapsedRealtime()) {
         while (true) { value = SystemClock.elapsedRealtime(); delay(5000) }
     }
-    val parked = d.hasFix && now - lastMoving > 120_000 && dismissedAt < lastMoving + 120_000
+    val active = maxOf(lastMoving, Ui.lastTouch)
+    val parked = d.hasFix && now - active > 120_000 && dismissedAt < active
     DisposableEffect(parked) {
         val w = (ctx as? Activity)?.window
         w?.attributes = w?.attributes?.apply { screenBrightness = if (parked) 0.12f else -1f }

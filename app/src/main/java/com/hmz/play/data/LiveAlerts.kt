@@ -35,6 +35,7 @@ object LiveAlerts {
     private val _current = MutableStateFlow<LiveAlert?>(null)
     val current: StateFlow<LiveAlert?> = _current.asStateFlow()
     private val queue = ArrayDeque<LiveAlert>()
+    private val lock = Any()
 
     val ALL_OFFSETS = listOf(90, 60, 30, 15, 10)
     private fun p(ctx: Context) = ctx.getSharedPreferences("live", Context.MODE_PRIVATE)
@@ -58,8 +59,11 @@ object LiveAlerts {
         }
     }
 
-    fun dismiss() {
-        _current.value = queue.removeFirstOrNull()
+    fun dismiss() = synchronized(lock) {
+        // skip reminders that are already past (e.g. queued while HMZ Play was hidden)
+        var next = queue.removeFirstOrNull()
+        while (next != null && next.at.isBefore(LocalDateTime.now().minusMinutes(2))) next = queue.removeFirstOrNull()
+        _current.value = next
     }
 
     fun demo() = push(
@@ -71,7 +75,7 @@ object LiveAlerts {
     )
 
     private fun push(a: LiveAlert) {
-        if (_current.value == null) _current.value = a else queue.addLast(a)
+        synchronized(lock) { if (_current.value == null) _current.value = a else queue.addLast(a) }
         app?.let { if (sound(it)) beep() }
     }
 
@@ -81,7 +85,7 @@ object LiveAlerts {
         android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({ t.release() }, 800)
     }
 
-    private data class Group(val kind: LiveItem.Kind, val key: String, val at: LocalDateTime, val place: String,
+    private data class Group(val kind: LiveItem.Kind, val ids: List<String>, val at: LocalDateTime, val place: String,
                              val headline: String, val lines: List<String>, val lat: Double?, val lon: Double?)
 
     private fun groups(items: List<LiveItem>): List<Group> {
@@ -92,7 +96,7 @@ object LiveAlerts {
             .forEach { (k, v) ->
                 val s = v.sortedBy { it.time }
                 out += Group(
-                    LiveItem.Kind.TRAIN, "T|${k.first}|${k.second}", s.first().time, k.first,
+                    LiveItem.Kind.TRAIN, s.map { "${it.time.toLocalDate()}|T|${it.place}|${it.title}" }, s.first().time, k.first,
                     if (s.size > 1) "${s.size} TRAINS ARRIVENT" else "ARRIVÉE TRAIN",
                     s.take(4).map { "%02d:%02d  ${it.title} · ${it.detail}".format(it.time.hour, it.time.minute) },
                     STATION_POS[k.first]?.first, STATION_POS[k.first]?.second,
@@ -104,7 +108,7 @@ object LiveAlerts {
             .forEach { (b, v) ->
                 val s = v.sortedBy { it.time }
                 out += Group(
-                    LiveItem.Kind.FLIGHT, "F|$b", s.first().time, "Aéroport Lille-Lesquin",
+                    LiveItem.Kind.FLIGHT, s.map { "${it.time.toLocalDate()}|F|${it.title}" }, s.first().time, "Aéroport Lille-Lesquin",
                     if (s.size > 1) "${s.size} AVIONS ATTERRISSENT" else "ARRIVÉE AVION",
                     s.take(4).map { "%02d:%02d  ${it.title} · ${it.detail}".format(it.time.hour, it.time.minute) },
                     50.5633, 3.0869,
@@ -112,12 +116,12 @@ object LiveAlerts {
             }
         // Big events: before the start and before the end.
         items.filter { it.kind == LiveItem.Kind.EVENT && it.big }.forEach { e ->
-            out += Group(LiveItem.Kind.EVENT, "E|${e.title}|${e.time}", e.time, e.place, "DÉBUT D'ÉVÉNEMENT",
+            if (e.end == null || e.end != e.time) out += Group(LiveItem.Kind.EVENT, listOf("${e.time.toLocalDate()}|E|${e.title}|${e.time}"), e.time, e.place, "DÉBUT D'ÉVÉNEMENT",
                 listOf(e.title, "Début %02d:%02d".format(e.time.hour, e.time.minute) + (e.end?.let { " · fin %02d:%02d".format(it.hour, it.minute) } ?: "")),
                 e.lat, e.lon)
             val end = e.end
             if (end != null && Duration.between(e.time, end).toHours() <= 12) {
-                out += Group(LiveItem.Kind.EVENT, "X|${e.title}|$end", end, e.place, "SORTIE D'ÉVÉNEMENT",
+                out += Group(LiveItem.Kind.EVENT, listOf("${end.toLocalDate()}|X|${e.title}|$end"), end, e.place, "SORTIE D'ÉVÉNEMENT",
                     listOf(e.title, "Fin prévue %02d:%02d : beaucoup de monde va chercher un VTC".format(end.hour, end.minute)),
                     e.lat, e.lon)
             }
@@ -132,21 +136,20 @@ object LiveAlerts {
     private fun check(ctx: Context) {
         if (!enabled(ctx)) return
         val pr = p(ctx)
-        val today = LocalDate.now().toString()
-        if (pr.getString("fired_day", null) != today) pr.edit().putString("fired_day", today).putStringSet("fired", emptySet()).apply()
-        val fired = pr.getStringSet("fired", emptySet())!!.toMutableSet()
+        // ids start with the item's date: keep yesterday and later, so nothing fires twice around midnight
+        val keepFrom = LocalDate.now().minusDays(1).toString()
+        val fired = pr.getStringSet("fired", emptySet())!!.filter { it.substringBefore('|') >= keepFrom }.toMutableSet()
         val now = LocalDateTime.now()
         val offs = offsets(ctx).sortedDescending()
         var changed = false
         for (g in groups(LiveInfo.items.value)) {
             val left = Duration.between(now, g.at).toMinutes()
             if (left < 0) continue
-            // the smallest offset we've reached (and not yet fired)
+            // the smallest offset we've reached
             val off = offs.lastOrNull { left <= it } ?: continue
-            val id = "${g.key}|$off"
-            if (id in fired) continue
+            if (g.ids.all { "$it|$off" in fired }) continue
             // mark this and every larger offset as done (no burst of old reminders)
-            offs.filter { it >= off }.forEach { fired += "${g.key}|$it" }
+            offs.filter { it >= off }.forEach { o -> g.ids.forEach { fired += "$it|$o" } }
             changed = true
             push(LiveAlert(g.kind, g.headline, g.at, g.place, g.lines, g.lat, g.lon, left.toInt()))
         }

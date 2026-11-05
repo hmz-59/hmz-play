@@ -70,6 +70,8 @@ object Doors {
         var found = false
         for (k in ex.keySet()) {
             val key = k.lowercase().replace("_", "").replace("-", "")
+            // whole words only ("door_fl", "frontLeftDoor"…), so "flag" or "error" never count as a door
+            val w = k.split(Regex("[^A-Za-z0-9]+|(?<=[a-z0-9])(?=[A-Z])")).filter { it.isNotBlank() }.joinToString(" ").lowercase()
             val v = ex.get(k)
             val open = when (v) {
                 is Boolean -> v
@@ -83,12 +85,12 @@ object Doors {
                     s = DoorState(v and 1 != 0, v and 2 != 0, v and 4 != 0, v and 8 != 0, v and 16 != 0, v and 32 != 0)
                     found = true
                 }
-                Regex("(fl|frontleft|leftfront|lf|driver)").containsMatchIn(key) -> { s = s.copy(frontLeft = open); found = true }
-                Regex("(fr|frontright|rightfront|rf|passenger)").containsMatchIn(key) -> { s = s.copy(frontRight = open); found = true }
-                Regex("(rl|rearleft|leftrear|lr|backleft)").containsMatchIn(key) -> { s = s.copy(rearLeft = open); found = true }
-                Regex("(rr|rearright|rightrear|backright)").containsMatchIn(key) -> { s = s.copy(rearRight = open); found = true }
-                Regex("(trunk|boot|tail|hatch|back)").containsMatchIn(key) -> { s = s.copy(trunk = open); found = true }
-                Regex("(hood|bonnet|engine)").containsMatchIn(key) -> { s = s.copy(hood = open); found = true }
+                Regex("\\b(fl|lf|driver|front ?left|left ?front)\\b").containsMatchIn(w) -> { s = s.copy(frontLeft = open); found = true }
+                Regex("\\b(fr|rf|passenger|front ?right|right ?front)\\b").containsMatchIn(w) -> { s = s.copy(frontRight = open); found = true }
+                Regex("\\b(rl|lr|rear ?left|left ?rear|back ?left)\\b").containsMatchIn(w) -> { s = s.copy(rearLeft = open); found = true }
+                Regex("\\b(rr|rear ?right|right ?rear|back ?right)\\b").containsMatchIn(w) -> { s = s.copy(rearRight = open); found = true }
+                Regex("\\b(trunk|boot|tailgate|hatch|back ?door)\\b").containsMatchIn(w) -> { s = s.copy(trunk = open); found = true }
+                Regex("\\b(hood|bonnet)\\b").containsMatchIn(w) -> { s = s.copy(hood = open); found = true }
             }
         }
         if (found) {

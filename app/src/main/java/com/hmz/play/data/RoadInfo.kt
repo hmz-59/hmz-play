@@ -55,7 +55,11 @@ object SpeedLimit {
         val l = _limit.value ?: return
         if (speedKmh > l + 3 && beepEnabled(ctx) && now - lastBeep > 15_000) {
             lastBeep = now
-            runCatching { ToneGenerator(AudioManager.STREAM_NOTIFICATION, 70).startTone(ToneGenerator.TONE_PROP_BEEP2, 300) }
+            runCatching {
+                val t = ToneGenerator(AudioManager.STREAM_NOTIFICATION, 70)
+                t.startTone(ToneGenerator.TONE_PROP_BEEP2, 300)
+                android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({ runCatching { t.release() } }, 700)
+            }
         }
     }
 

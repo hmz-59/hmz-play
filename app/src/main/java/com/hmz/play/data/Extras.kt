@@ -146,8 +146,9 @@ object Backup {
     fun restoreIfFresh(ctx: Context) {
         val p = prefs(ctx)
         if (p.getBoolean("restored_once", false)) return
+        if (p.contains("app_order") || p.contains("theme")) { p.edit().putBoolean("restored_once", true).apply(); return }
+        if (!File(dir(), "reglages.json").canRead()) return // no backup yet, or storage permission not granted yet: retry later
         p.edit().putBoolean("restored_once", true).apply()
-        if (p.contains("app_order") || p.contains("theme")) return
         runCatching {
             val j = JSONObject(File(dir(), "reglages.json").readText())
             val e = p.edit()

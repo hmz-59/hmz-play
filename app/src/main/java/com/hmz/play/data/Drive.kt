@@ -118,8 +118,7 @@ object Drive {
             lastSave = now
             app?.getSharedPreferences("history", Context.MODE_PRIVATE)?.edit()
                 ?.putString(today, "%.2f;%d".format(java.util.Locale.US, km, sec))?.apply()
-            p?.edit()?.putFloat("total_km", totalKmMem.toFloat())
-            p?.edit()?.putFloat("km", km.toFloat())?.putLong("sec", sec)
+            p?.edit()?.putFloat("total_km", totalKmMem.toFloat())?.putFloat("km", km.toFloat())?.putLong("sec", sec)
                 ?.putFloat("lat", lat.toFloat())?.putFloat("lon", lon.toFloat())?.apply()
         }
     }

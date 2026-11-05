@@ -63,8 +63,13 @@ fun Sidebar(screen: Screen, onNavigate: (Screen) -> Unit) {
     val notifs by IphoneLink.notifications.collectAsStateWithLifecycle()
     val track by IphoneLink.track.collectAsStateWithLifecycle()
 
+    // Fit every head-unit height (1024x600, 1280x720…): smaller tiles and fewer recents when short.
+    val h = androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp
+    val tile = when { h < 520 -> 52.dp; h < 620 -> 60.dp; else -> 70.dp }
+    val gap = if (h < 620) 10.dp else 18.dp
+    val maxRecents = when { h >= 720 -> 2; h >= 600 -> 1; else -> 0 }
     Column(
-        Modifier.fillMaxHeight().width(104.dp).background(C.Bg).padding(vertical = 16.dp),
+        Modifier.fillMaxHeight().width(104.dp).background(C.Bg).padding(vertical = if (h < 620) 10.dp else 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Clock()
@@ -87,33 +92,33 @@ fun Sidebar(screen: Screen, onNavigate: (Screen) -> Unit) {
 
         Spacer(Modifier.weight(1f))
 
-        Column(verticalArrangement = Arrangement.spacedBy(18.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            DockButton(Icons.Filled.Navigation, C.Blue) { Split.openNavigation(ctx) }
-            DockButton(Icons.Filled.MusicNote, C.Pink, active = track.playing) { onNavigate(Screen.MUSIC) }
-            DockButton(Icons.AutoMirrored.Filled.Chat, C.Green, badge = notifs.size) { onNavigate(Screen.NOTIFS) }
+        Column(verticalArrangement = Arrangement.spacedBy(gap), horizontalAlignment = Alignment.CenterHorizontally) {
+            DockButton(Icons.Filled.Navigation, C.Blue, size = tile) { Split.openNavigation(ctx) }
+            DockButton(Icons.Filled.MusicNote, C.Pink, active = track.playing, size = tile) { onNavigate(Screen.MUSIC) }
+            DockButton(Icons.AutoMirrored.Filled.Chat, C.Green, badge = notifs.size, size = tile) { onNavigate(Screen.NOTIFS) }
             // Recent apps, like the CarPlay side bar
-            val recents = remember(screen) {
-                Shell.recents(ctx).filterNot { Split.isNavigation(it) }.take(2).mapNotNull { pkg ->
+            val recents = remember(screen, maxRecents) {
+                Shell.recents(ctx).filterNot { Split.isNavigation(it) }.take(maxRecents).mapNotNull { pkg ->
                     runCatching { pkg to ctx.packageManager.getApplicationIcon(pkg).toBitmap(160, 160).asImageBitmap() }.getOrNull()
                 }
             }
             recents.forEach { (pkg, icon) ->
                 Image(
                     icon, null,
-                    modifier = Modifier.size(70.dp).clip(RoundedCornerShape(16.dp)).tap { Shell.open(ctx, pkg) },
+                    modifier = Modifier.size(tile).clip(RoundedCornerShape(16.dp)).tap { Shell.open(ctx, pkg) },
                 )
             }
         }
 
+        Spacer(Modifier.height(gap))
         RideButton(compact = true)
-        Spacer(Modifier.height(12.dp))
         Spacer(Modifier.weight(1f))
 
         // The "home" button: dashboard <-> app grid, like the CarPlay one.
         val onHome = screen == Screen.HOME
         Box(
             Modifier
-                .size(58.dp)
+                .size(if (h < 620) 50.dp else 58.dp)
                 .clip(RoundedCornerShape(16.dp))
                 .background(C.Panel)
                 .tap { onNavigate(if (onHome) Screen.APPS else Screen.HOME) },
@@ -137,10 +142,11 @@ private fun DockButton(
     color: Color,
     badge: Int = 0,
     active: Boolean = false,
+    size: androidx.compose.ui.unit.Dp = 70.dp,
     onClick: () -> Unit,
 ) {
     Box(Modifier.tap(onClick = onClick)) {
-        GlyphTile(icon, color, 70.dp)
+        GlyphTile(icon, color, size)
         AnimatedVisibility(
             visible = badge > 0,
             enter = scaleIn(),

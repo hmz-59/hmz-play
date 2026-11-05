@@ -43,6 +43,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -112,7 +113,16 @@ fun CarRoot(locationGranted: Boolean, refreshKey: Int, onRequestPermissions: () 
     val wall = com.hmz.play.data.Prefs.wallpaper
     C.glass = wall != null
 
-    BoxWithConstraints(Modifier.fillMaxSize().background(C.Bg)) {
+    BoxWithConstraints(
+        Modifier.fillMaxSize().background(C.Bg).pointerInput(Unit) {
+            awaitPointerEventScope {
+                while (true) {
+                    awaitPointerEvent(androidx.compose.ui.input.pointer.PointerEventPass.Initial)
+                    Ui.lastTouch = android.os.SystemClock.elapsedRealtime()
+                }
+            }
+        },
+    ) {
         if (wall != null) {
             val img = androidx.compose.runtime.remember(wall) { wall.asImageBitmap() }
             androidx.compose.foundation.Image(
@@ -140,7 +150,10 @@ fun CarRoot(locationGranted: Boolean, refreshKey: Int, onRequestPermissions: () 
         NotificationBanner(compact = compact, onOpen = { screen = Screen.NOTIFS })
         DestinationSheet()
         UpdateBanner()
-        if (!com.hmz.play.data.Vtc.active) ParkedOverlay()
+        // Parked clock: only on the home screen, never over a sheet being filled in.
+        if (!com.hmz.play.data.Vtc.active && screen == Screen.HOME && !Ui.searchOpen && !VtcUi.startOpen &&
+            com.hmz.play.data.Vtc.pending == null && VtcState.signName == null && !VtcState.endOfDayOpen && !VtcState.signEditOpen
+        ) ParkedOverlay()
         RideBar()
         DoorAlert()
         WelcomeCard()

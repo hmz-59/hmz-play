@@ -8,6 +8,7 @@ object Shell {
     /** True while an HMZ Play screen is visible (full screen or split); the dock hides then. */
     @Volatile
     var hmzVisible = false
+    @Volatile var inSplit = false
 
     private const val KEY = "recent_apps"
     private fun prefs(ctx: Context) = ctx.getSharedPreferences("ui", Context.MODE_PRIVATE)

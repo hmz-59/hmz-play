@@ -68,6 +68,12 @@ object CarBluetooth {
                         val st = intent.getIntExtra(BluetoothProfile.EXTRA_STATE, -1)
                         val d: BluetoothDevice? = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
                         _connected.value = if (st == BluetoothProfile.STATE_CONNECTED) (runCatching { d?.name }.getOrNull() ?: "iPhone") else null
+                        if (st != BluetoothProfile.STATE_CONNECTED) {
+                            // phone gone (out of range, BT off): never leave a call screen stuck
+                            currentCall = null
+                            _call.value = null
+                            IphoneLink.setExternalCall(null)
+                        }
                     }
                     ACTION_CALL_CHANGED -> onCall(intent)
                     ACTION_MAP_MESSAGE -> onMessage(intent)

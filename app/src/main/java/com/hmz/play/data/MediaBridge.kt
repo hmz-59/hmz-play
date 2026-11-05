@@ -139,8 +139,9 @@ object MediaBridge {
         publishInner()
         val now = _info.value.playing
         val ctx = appCtx
-        if (now && !wasPlaying && ctx != null && Shell.hmzVisible &&
-            SystemClock.elapsedRealtime() - lastActivate > 20_000
+        // Not in split screen: opening the car's Bluetooth app would replace the Waze half.
+        if (now && !wasPlaying && ctx != null && Shell.hmzVisible && !Shell.inSplit &&
+            SystemClock.elapsedRealtime() - lastActivate > 120_000
         ) {
             lastActivate = SystemClock.elapsedRealtime()
             AudioSource.activate(ctx)

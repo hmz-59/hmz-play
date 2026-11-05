@@ -60,6 +60,8 @@ import com.hmz.play.data.Split
 /** Shared UI flags. */
 object Ui {
     var searchOpen by mutableStateOf(false)
+    /** Last time the screen was touched (the parked clock waits 2 min after it). */
+    var lastTouch by mutableStateOf(0L)
 }
 
 /** "Où allons-nous ?" — type a destination, Waze starts guidance (official Waze deep link). */
