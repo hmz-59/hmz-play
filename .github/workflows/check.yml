@@ -1,0 +1,41 @@
+name: Check release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Web sources
+        run: bash ci/probes.sh
+      - name: Latest APK
+        run: curl -sL -o HMZ-Play.apk https://github.com/hmz-59/hmz-play/releases/latest/download/HMZ-Play.apk && ls -l HMZ-Play.apk
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Android 9 emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 28
+          arch: x86_64
+          target: google_apis
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot
+          script: bash ci/check.sh
+      - name: Publish results
+        run: |
+          git config user.name "hmz-ci"
+          git config user.email "ci@users.noreply.github.com"
+          git checkout --orphan ci-check
+          git rm -rf --cached . >/dev/null
+          git add -f out
+          git commit -qm "check ${{ github.run_number }}"
+          git push -f origin ci-check

@@ -49,6 +49,7 @@ class MainActivity : ComponentActivity() {
         }
         locationGranted = granted(Manifest.permission.ACCESS_FINE_LOCATION)
         com.hmz.play.data.Prefs.load(this)
+        handleExtras(intent)
 
         // Reload the app grid only when an app is installed or removed (not on every resume: faster).
         ContextCompat.registerReceiver(this, object : android.content.BroadcastReceiver() {
@@ -107,6 +108,20 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         // Pressing "home" while already here: nothing to do, the UI stays on its current screen.
+        handleExtras(intent)
+    }
+
+    /** "hmz_screen" opens a screen, "hmz_demo" shows a demo overlay (used for the automatic checks). */
+    private fun handleExtras(i: Intent?) {
+        i ?: return
+        i.getStringExtra("hmz_screen")?.let { s -> com.hmz.play.ui.Screen.entries.firstOrNull { it.name == s }?.let { com.hmz.play.ui.NavRequest.screen = it } }
+        when (i.getStringExtra("hmz_demo")) {
+            "alert" -> com.hmz.play.data.LiveAlerts.demo()
+            "doors" -> com.hmz.play.data.Doors.demo()
+            "sign" -> com.hmz.play.ui.VtcState.signName = "M. Dupont"
+            "endofday" -> com.hmz.play.ui.VtcState.endOfDayOpen = true
+            "close" -> { com.hmz.play.ui.VtcState.signName = null; com.hmz.play.ui.VtcState.endOfDayOpen = false; com.hmz.play.data.LiveAlerts.dismiss() }
+        }
     }
 
     private fun hideSystemBars() {

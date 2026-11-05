@@ -61,6 +61,9 @@ import kotlinx.coroutines.withContext
 
 enum class Screen { HOME, APPS, MUSIC, NOTIFS, SETTINGS, FUEL, VTC, LIVE }
 
+/** Screen asked from outside (launcher shortcut / test run): "hmz_screen" extra of the start intent. */
+object NavRequest { var screen by mutableStateOf<Screen?>(null) }
+
 @Composable
 fun CarRoot(locationGranted: Boolean, refreshKey: Int, onRequestPermissions: () -> Unit) {
     val ctx = LocalContext.current
@@ -93,6 +96,7 @@ fun CarRoot(locationGranted: Boolean, refreshKey: Int, onRequestPermissions: () 
     }
 
     BackHandler(enabled = screen != Screen.HOME) { screen = Screen.HOME }
+    LaunchedEffect(NavRequest.screen) { NavRequest.screen?.let { screen = it; NavRequest.screen = null } }
 
     // Day / night palette: automatic at sunrise/sunset, or forced in Settings. Checked every minute.
     LaunchedEffect(com.hmz.play.data.Prefs.theme) {
